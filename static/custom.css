@@ -54,3 +54,31 @@
 .field-actions > a{
     width: initial !important;
 }
+
+.icon-header, .icon-paragraph, .icon-radio-group, .icon-hidden, .icon-file{
+    display: none;
+}
+
+.calendar.right{
+    display: none !important;
+}
+
+.autocomplete-field .field-options{
+    display: none !important;
+}
+
+.select2-container{
+    width: 100%;
+}
+
+.has-success .select2-dropdown, .has-success .select2-selection{
+    border: 0px !important;
+    border-bottom: 1px solid #27a4b0 !important;
+    font-size: 12px;
+}
+
+.has-error .select2-dropdown, .has-error .select2-selection{
+    border: 0px !important;
+    border-bottom: 1px solid #d71b29 !important;
+    font-size: 12px;
+}

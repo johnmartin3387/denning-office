@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from django.db import models
 
 class Contact_Info(models.Model):
+    address1 = models.CharField(max_length=255, blank=True, null=True)
+    address2 = models.CharField(max_length=255, blank=True, null=True)
+    address3 = models.CharField(max_length=255, blank=True, null=True)
     postcode = models.CharField(max_length=255, blank=True, null=True)
     town = models.CharField(max_length=255, blank=True, null=True)
     state = models.CharField(max_length=255, blank=True, null=True)
@@ -16,8 +19,19 @@ class Contact_Info(models.Model):
     class Meta:
         db_table = 'Contact_Info'
 
+class Contact_Template(models.Model):
+    type = models.CharField(max_length=255, blank=True, null=True)
+    json = models.TextField(blank=True, null=True, default="{}")
+
+    class Meta:
+        db_table = 'Contact_Template'
+
+    def __unicode__(self):
+        return "%s" % self.type
+
 class Contact(models.Model):
-    id_type = models.IntegerField(blank=True, default=0, null=True)
+    id_type = models.CharField(max_length=255, blank=True, null=True)
+    id_value = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     citizenship = models.CharField(max_length=255, blank=True, null=True)
@@ -30,7 +44,7 @@ class Contact(models.Model):
     def __unicode__(self):
         return "%s" % self.title
 
-class Address(models.Model):
+'''class Address(models.Model):
     street = models.CharField(max_length=255, blank=True, null=True)
     info = models.ForeignKey('Contact_Info', blank=True, null=True)
 
@@ -38,12 +52,12 @@ class Address(models.Model):
         db_table = 'Address'
 
     def __unicode__(self):
-        return "%s" % self.street
+        return "%s" % self.street'''
 
 class Phone(models.Model):
     phone = models.CharField(max_length=255, blank=True, null=True)
     type = models.CharField(max_length=255, blank=True, null=True)
-    info = models.ForeignKey('Contact_Info', blank=True, null=True)
+    contact = models.ForeignKey('Contact', blank=True, null=True)
 
     class Meta:
         db_table = 'Phone'
@@ -111,9 +125,13 @@ class Staff(models.Model):
 class Normal(models.Model):
     contact = models.ForeignKey('Contact', blank=True, null=True)
     privilege = models.ForeignKey('Privilege', blank=True, null=True)
-    email = models.CharField(max_length=255, blank=True, null=True)
     old_ic = models.CharField(max_length=255, blank=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
+
+    registered_office = models.CharField(max_length=255, blank=True, null=True)
+    directors = models.CharField(max_length=255, blank=True, null=True)
+    secretary = models.ForeignKey('Staff', blank=True, null=True)
+    template = models.ForeignKey('Contact_Template', blank=True, null=True)
 
     class Meta:
         db_table = 'Normal'
@@ -226,6 +244,8 @@ class Property(models.Model):
     title_no = models.CharField(max_length=255, blank=True, null=True)
     lot_type = models.CharField(max_length=255, blank=True, null=True)
     lot_no = models.CharField(max_length=255, blank=True, null=True)
+    mukim = models.CharField(max_length=255, blank=True, null=True)
+    mukim_val = models.CharField(max_length=255, blank=True, null=True)
     daerah = models.CharField(max_length=255, blank=True, null=True)
     negeri = models.CharField(max_length=255, blank=True, null=True)
     area = models.CharField(max_length=255, blank=True, null=True)
@@ -245,6 +265,8 @@ class Property(models.Model):
     annual_quit_rent = models.IntegerField(blank=True, default=0, null=True)
     previous_title = models.CharField(max_length=255, blank=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
+
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'Property'

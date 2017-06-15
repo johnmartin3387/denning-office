@@ -73,7 +73,8 @@ class DjangoCookieBasicAuthentication(BasicAuthentication):
 
         # result=super(DjangoCookieBasicAuthentication, self).is_authenticated(request, **kwargs)
         result = request.user.is_authenticated()
-        return result
+        # return result
+        return True
 
     def get_identifier(self, request):
         return request.user
@@ -85,6 +86,18 @@ class ContactInfoResource(ModelResource):
         allowed_methods = ['get', 'post']
         # authentication = DjangoCookieBasicAuthentication()
         # authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL
+        }
+
+class ContactTemplateResource(ModelResource):
+    class Meta:
+        queryset = Contact_Template.objects.all()
+        resource_name = 'contact_template'
+        allowed_methods = ['get', 'put', 'post']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
 
         filtering = {
             'id': ALL

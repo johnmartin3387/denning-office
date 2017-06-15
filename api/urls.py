@@ -5,5 +5,6 @@ from project import views
 
 urlpatterns = [
     url(r'^', include(ContactInfoResource().urls)),
+    url(r'^', include(ContactTemplateResource().urls)),
 ]
 
