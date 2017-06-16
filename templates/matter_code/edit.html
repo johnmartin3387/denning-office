@@ -11,37 +11,45 @@
 <link href="{% static 'global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" type="text/css" />
 <link href="{% static 'global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
 <link href="{% static 'global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2-bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
 
 {% endblock %}
-{% block title %} Matter Code <button type="button" class="btn btn-primary edit-btn" style="float: right" onclick="FormBuilder_tp.saveFrame('matter')">Edit Form</button> {% endblock %}
+{% block title %} Matter Code {% endblock %}
 {% block content %}
 <div class="row">
+    <form name="defaultForm" method="post" id="defaultForm" role="form" >
+    {% csrf_token %}
+    <input type="hidden" name="matter_code_id" id="matter_code_id" value="{{matter_code.id}}">
+    <input type="hidden" name="additional_info" id="additional_info" value="{{matter_code.additional_info}}">
+    <div class="row" style="margin: -50px 20px 10px 0px;">
+        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('matter')">Edit Form</a> <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+    </div>
     <div class="col-md-6 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
         <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    Matter Information </div>
+                    Matter Code Information </div>
                 <div class="tools">
-                    <a href="javascript: alert();" data-toggle="modal" class="config edit-tool" data-original-title="" title=""> </a>
-                    <a href="javascript:;" class="edit-form edit-tool" onclick="FormBuilder_tp.appendForm(this, 'col-md-6')"> </a>
+                    <!-- <a href="javascript: alert();" data-toggle="modal" class="config edit-tool" data-original-title="" title=""> </a>
+                    <a href="javascript:;" class="edit-form edit-tool" onclick="FormBuilder_tp.appendForm(this, 'col-md-6')"> </a> -->
                     <a href="" class="collapse"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="matter_code">Matter Code</label>
+                            <label class="col-md-4 control-label" for="code">Matter Code <span class="required" aria-required="true" > * </span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="matter_code" placeholder="Enter matter code" name="matter_code">
+                                <input type="text" class="form-control" id="code" placeholder="Enter matter code" name="code" required value="{{matter_code.code}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="matter">Matter</label>
+                            <label class="col-md-4 control-label" for="matter_tp">Matter</label>
                             <div class="col-md-8">
-                                <textarea class="form-control" rows="6" name="matter"></textarea>
+                                <textarea class="form-control" rows="6" name="matter_tp">{{matter_code.matter_tp}}</textarea>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -50,38 +58,63 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control" id="category" name="category">
-                                            <option value="">Option 1</option>
-                                            <option value="">Option 2</option>
-                                            <option value="">Option 3</option>
-                                            <option value="">Option 4</option>
+                                        <select class="form-control select2" id="category" name="category" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Category' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-icon-only blue">
-                                            <i class="fa fa-search"></i>
-                                        </a>
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Category');">
+                                            <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="edit_form">Edit Form</label>
+                            <label class="col-md-4 control-label" for="related">Edit Form</label>
                             <div class="col-md-8">
-                                <select class="form-control" id="edit_form" name="edit_form">
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                    <option value="">Option 3</option>
-                                    <option value="">Option 4</option>
+                                <select class="form-control" id="related" name="related" onchange="changerelated(this)">
+                                    <option value=""></option>
+                                    {% for matter_cd in matter_codes %}
+                                        <option value="{{matter_cd.id}}">{{matter_cd.code}}</option>
+                                    {% endfor %}
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="turnarround_days">Turn arround Time (Days)</label>
+                            <label class="col-md-4 control-label" for="category">Department</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="department" name="department" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Department' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.department_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Department');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="turnaround">Turn arround Time (Days)</label>
                             <div class="col-md-8">
-                                <input type="number" class="form-control" id="turnarround_days" placeholder="Enter project name" name="turnarround_days">
+                                <input type="number" class="form-control" id="turnaround" placeholder="Enter project name" name="turnaround" value="{{matter_code.turnaround}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -128,17 +161,17 @@
                             </div>
                         </div>
                     </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
     </div>
-    <div class="col-md-6 ">
+    </form>
+    <div class="col-md-6 custom-form">
         <!-- BEGIN SAMPLE FORM PORTLET-->
-        <div class="portlet box purple ">
+        <div class="portlet box purple custom-form-item">
             <div class="portlet-title">
                 <div class="caption">
-                     <span class="header-static">Matter Information</span> <input type="text" class="form-control input-sm edit-tool header-edit"> </div>
+                     <span class="header-static" style=""></span> <input type="text" class="form-control input-sm header-edit" style="display: none"> </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
                     <a href="" class="fullscreen edit-tool" data-original-title="" title="" onclick="FormBuilder_tp.editForm(this)"> </a>
@@ -146,21 +179,42 @@
                     <a href="javascript:;" class="remove-form edit-tool" data-original-title="" title="" onclick="FormBuilder_tp.removeForm(this)"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
-                        <div class="row" id="myformbuilder">
-                        </div>
-                        <div class="row" id="myformrenderer">
-                        </div>
-                        <div class="form-content">
-                        </div>
                     </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
     </div>
+</div>
+
+<div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body form form-horizontal">
+                <div class="form-body">
+                    <div class="form-group form-md-line-input has-success">
+                        <label class="col-md-4 control-label" for="type">Value</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value">
+                            <input type="hidden" id="list-type" name="list-type">
+                            <div class="form-control-focus"> </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn green" data-dismiss="modal" onclick="commitNewAttr()">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 {% endblock %}
 
@@ -171,6 +225,8 @@
 <script src="{% static 'global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/jquery-validation/js/jquery.validate.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/select2/js/select2.full.min.js' %}" type="text/javascript"></script>
 
 <script src="{% static 'formbuilder/js/jquery-ui.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'formbuilder/js/form-builder.min.js' %}" type="text/javascript"></script>
@@ -178,5 +234,59 @@
 
 
 <script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+if (App.isAngularJsApp() === false) {
+    if($("#matter_code_id").val() != ""){
+        var json = '{{matter_code.additional_info}}'
+        json = json.replace(/&quot;/g, "\"");
+        try {
+            $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(json)))
+        }
+        catch(err) {
+        }
+    }
+
+    $(".select2, .select2-multiple").select2({
+        placeholder: "",
+        width: null
+    });
+
+    checkValidation("#defaultForm", {})
+}
+
+function changerelated(obj){
+    if($(obj).val() != ""){
+        $.ajax({
+            type: 'GET',
+            url: '/api/matter_code/'+$(obj).val()+'/?format=json',
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function(data) {
+                try {
+                    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["additional_info"])))
+                    FormBuilder_tp.setMode(1)
+                }
+                catch(err) {
+                }
+              
+
+                $(".form_datetime").datetimepicker({
+                    autoclose: true,
+                    isRTL: App.isRTL(),
+                    format: "dd MM yyyy - hh:ii",
+                    pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
+                });
+
+                $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+                // Workaround to fix datetimepicker position on window scroll
+                $( document ).scroll(function(){
+                    $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
+                });
+            }
+        });
+
+    }
+}
+</script>
 
 {% endblock %}

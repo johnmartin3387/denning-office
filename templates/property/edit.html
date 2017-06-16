@@ -85,15 +85,18 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="title_type" name="title_type">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="title_type" name="title_type" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Title Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Title Type');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -113,15 +116,18 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="lot_type" name="lot_type">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="lot_type" name="lot_type" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Lot Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Lot Type');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -148,17 +154,19 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="mukim_val" name="mukim_val">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="mukim_val" name="mukim_val" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Mukim Value' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-icon-only purple" style="margin-left: 2px;">
-                                            <i class="fa fa-search"></i>
-                                        </a>
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Mukim Value');">
+                                            <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
@@ -196,19 +204,21 @@
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="tenure">Tenure</label>
-
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="tenure" name="tenure">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="tenure" name="tenure" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Tenure' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Tenure');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -282,41 +292,21 @@
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="land_use">Category of Land Use</label>
-
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="land_use" name="category_land_use">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="tenure" name="tenure" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Tenure' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
-                                            <i class="fa fa-plus"></i> </a>
-                                    </span>
-                                </div>
-                                <div class="form-control-focus"> </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="express_cond">Express Condition</label>
-
-                            <div class="col-md-8 input-group-control">
-                                <div class="input-group input-group-sm">
-                                    <div class="input-group-control">
-                                        <select class="form-control select2" id="express_cond" name="express_condition">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
-                                        </select>
-                                    </div>
-                                    <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Tenure');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -324,24 +314,50 @@
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="building">Building Type</label>
+                            <label class="col-md-4 control-label" for="express_condition">Express Condition</label>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="building" name="building_type">
-		                                    <option value="Option 1">Option 1</option>
-		                                    <option value="Option 2">Option 2</option>
-		                                    <option value="Option 3">Option 3</option>
-		                                    <option value="Option 4">Option 4</option>
-		                                </select>
+                                        <select class="form-control select2" id="express_condition" name="express_condition" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Express Condition' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Express Condition');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
                             </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="building_type">Building Type</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="building_type" name="building_type" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Building Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Building Type');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>                            
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="age_building">Age of Building</label>
@@ -532,25 +548,27 @@
 
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="land_use">Building Description</label>
-
                             <div class="col-md-7 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="proj_code" name="proj_code">
-                                            <option value="Option 1">Option 1</option>
-                                            <option value="Option 2">Option 2</option>
-                                            <option value="Option 3">Option 3</option>
-                                            <option value="Option 4">Option 4</option>
+                                        <select class="form-control select2" id="building_description" name="building_description" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Building Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-icon-only purple">
-                                            <i class="fa fa-search"></i>
-                                        </a>
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Building Type');">
+                                            <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
-                            </div>
+                            </div> 
+                            
                         </div>
 
                         <div class="form-group form-md-line-input has-success">
@@ -685,6 +703,35 @@
         <!-- END SAMPLE FORM PORTLET-->
     </div>
 </div>
+
+<div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body form form-horizontal">
+                <div class="form-body">
+                    <div class="form-group form-md-line-input has-success">
+                        <label class="col-md-4 control-label" for="type">Value</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value">
+                            <input type="hidden" id="list-type" name="list-type">
+                            <div class="form-control-focus"> </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn green" data-dismiss="modal" onclick="commitNewAttr()">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -696,7 +743,7 @@
 <script src="{% static 'global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}" type="text/javascript"></script>
 
 <script src="{% static 'global/plugins/select2/js/select2.full.min.js' %}" type="text/javascript"></script>
-
+<script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
 <script type="text/javascript">
 
 if (App.isAngularJsApp() === false) {
@@ -728,5 +775,6 @@ function Interest_enable(obj){
 		$(".interest").attr("disabled", true);
 	}
 }
+
 </script>
 {% endblock %}

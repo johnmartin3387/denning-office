@@ -30,13 +30,14 @@ class Contact_Template(models.Model):
         return "%s" % self.type
 
 class Contact(models.Model):
-    id_type = models.CharField(max_length=255, blank=True, null=True)
+    id_type = models.ForeignKey('Attribute', blank=True, null=True)
     id_value = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     citizenship = models.CharField(max_length=255, blank=True, null=True)
     type = models.CharField(max_length=255, blank=True, null=True)
     info = models.ForeignKey('Contact_Info', blank=True, null=True)
+    gst_reg_no = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = 'Contact'
@@ -153,12 +154,12 @@ class Matter_Code(models.Model):
     related = models.ForeignKey('self', blank=True, null=True)
     code = models.CharField(max_length=255, blank=True, null=True)
     matter_tp = models.TextField(blank=True, null=True)
-    category = models.CharField(max_length=255, blank=True, null=True)
-    department = models.CharField(max_length=255, blank=True, null=True)
+    category = models.ForeignKey('Attribute', blank=True, null=True, related_name="category")
+    department = models.ForeignKey('Attribute', blank=True, null=True, related_name="department")
     turnaround = models.IntegerField(blank=True, default=0, null=True)
     billing_code = models.CharField(max_length=255, blank=True, null=True)
     favourites = models.BooleanField(default=False)
-    additional_info = models.TextField(blank=True, null=True)
+    additional_info = models.TextField(blank=True, null=True, default="[]")
     checklist = models.ForeignKey('Checklist', blank=True, null=True)
 
     class Meta:

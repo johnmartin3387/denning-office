@@ -82,3 +82,7 @@
     border-bottom: 1px solid #d71b29 !important;
     font-size: 12px;
 }
+
+label.error{
+    display: none !important;
+}

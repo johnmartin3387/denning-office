@@ -20,7 +20,7 @@ class CustomAuthorization(Authorization):
         return True
 
     def read_list(self, object_list, bundle):
-        return True
+        return object_list
 
     def read_detail(self, object_list, bundle):
         return True
@@ -95,6 +95,31 @@ class ContactTemplateResource(ModelResource):
     class Meta:
         queryset = Contact_Template.objects.all()
         resource_name = 'contact_template'
+        allowed_methods = ['get', 'put', 'post']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL
+        }
+
+class AttributeResource(ModelResource):
+    class Meta:
+        queryset = Attribute.objects.all()
+        resource_name = 'attribute'
+        allowed_methods = ['get', 'put', 'post']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL,
+            'type': ALL_WITH_RELATIONS,
+        }
+
+class MatterCodeResource(ModelResource):
+    class Meta:
+        queryset = Matter_Code.objects.all()
+        resource_name = 'matter_code'
         allowed_methods = ['get', 'put', 'post']
         authentication = DjangoCookieBasicAuthentication()
         authorization = CustomAuthorization()

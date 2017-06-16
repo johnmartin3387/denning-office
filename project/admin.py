@@ -14,3 +14,10 @@ class ContactAdmin(admin.ModelAdmin):
     list_display_links = ['id']
 
 admin.site.register(Contact, ContactAdmin)
+
+class AttributeAdmin(admin.ModelAdmin):
+    model = Attribute
+    list_display = ['id', 'type', 'value']
+    list_display_links = ['id']
+
+admin.site.register(Attribute, AttributeAdmin)

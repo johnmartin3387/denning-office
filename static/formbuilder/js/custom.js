@@ -43,7 +43,7 @@ var FormBuilder_tp = function() {
                         <a href="javascript:;" class="remove-form edit-tool" data-original-title="" title="" onclick="FormBuilder_tp.removeForm(this)"> </a> \
                     </div> \
                 </div> \
-                <div class="portlet-body form"> \
+                <div class="portlet-body form form-horizontal"> \
                         <div class="form-body"> \
                         </div> \
                 </div> \
@@ -65,6 +65,7 @@ var FormBuilder_tp = function() {
                 randNum = genRand().toString()
                 str = '<div class="row" id="myformbuilder-'+ randNum +'"> \
                     </div>'
+                id = "myformbuilder-"+ randNum
             } else {
                 str = '<div class="row" id="'+ id +'"> \
                     </div>'
@@ -205,8 +206,6 @@ var FormBuilder_tp = function() {
         };
 
         var data = getData(indicator);
-        console.log(indicator)
-        console.log(data)
         if(data != undefined){
             options["defaultFields"] = data
         }
@@ -262,10 +261,8 @@ var FormBuilder_tp = function() {
     var getDateStr = function(element, placeholder){
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
-                        <div class="col-md-8">\
-                        <div class="input-group input-large form_datetime"> \
+                        <div class="col-md-8 date form_datetime">\
                             <input type="text" placeholder="'+ placeholder +'" name="'+ slugify(element['label']) +'" class="form-control date-set"> \
-                        </div> \
                         </div> \
                     </div>'
 
@@ -412,11 +409,12 @@ var FormBuilder_tp = function() {
     }
 
     var commitData = function(json){
-        alert(JSON.stringify(json))
         // commit json data into server
         if(form_type == "contact"){
             if($("#type").val() == "new"){
                 var name = $("#new_type").val()
+                if(name == "")
+                    return
                 $.ajax({
                     type: 'post',
                     url: '/api/contact_template/',
@@ -439,6 +437,8 @@ var FormBuilder_tp = function() {
                     }
                 });
             }
+        } else if(form_type == "matter"){
+            $("#additional_info").val(JSON.stringify(json))
         }
     }
 
@@ -484,10 +484,147 @@ var FormBuilder_tp = function() {
         },
         setMode: function(param){
             setMode(param)
+        },
+        slugify_p: function(param){
+            return slugify(param)
         }
     };
 
 }();
+
+var addNew = function(type){
+    $(".modal-title").html("Add New " + type)
+    $("#list-type").val(type)
+    $("#list-value").val("")
+}
+var commitNewAttr = function(){
+    var type = $("#list-type").val()
+    var value = $("#list-value").val()
+    if(value == "")
+        return
+
+    $.ajax({
+        type: 'post',
+        url: '/api/attribute/?format=json',
+        data: JSON.stringify({"type": type, "value": value}),
+        contentType: 'application/json; charset=UTF-8',
+        dataType: 'json',
+        success: function(data) {
+        },
+        error: function() {
+            $.ajax({
+                type: 'get',
+                url: '/api/attribute/?format=json&type=' + type,
+                data: JSON.stringify({"type": type, "value": value}),
+                contentType: 'application/json; charset=UTF-8',
+                dataType: 'json',
+                success: function(data) {
+                    var indicator = FormBuilder_tp.slugify_p($("#list-type").val())
+
+                    var str = ""
+                    for(var i=0; i<data["objects"].length-1; i++){
+                        str += '<option value="'+data["objects"][i]['id']+'">'+data["objects"][i]['value']+'</option>'
+                    }
+                    if(data["objects"].length != 0)
+                        str += '<option value="'+data["objects"][data["objects"].length-1]['id']+'" selected>'+data["objects"][data["objects"].length-1]['value']+'</option>'
+                    
+                    $("#"+indicator).html(str)
+
+                    $(".select2, .select2-multiple").select2({
+                        placeholder: "",
+                        width: null
+                    });
+                    checkValidation("#defaultForm", {})
+                }
+            });
+        }
+    });
+}
+
+var checkValidation = function(indicator, rule){
+    $(indicator).validate({
+        rules: rule,
+        highlight: function (element) { // hightlight error inputs
+
+            $(element)
+                .closest('.form-group').addClass('has-error'); // set error class to the control group
+        },
+
+        unhighlight: function (element) { // revert the change done by hightlight
+            $(element)
+                .closest('.form-group').removeClass('has-error'); // set error class to the control group
+        },
+
+        success: function (label) {
+            label
+                .closest('.form-group').removeClass('has-error'); // set success class to the control group
+        },
+    })
+}
+
+var datatables = function(indicator){
+    // begin first table
+        $(indicator).dataTable({
+
+            // Internationalisation. For more info refer to http://datatables.net/manual/i18n
+            "language": {
+                "aria": {
+                    "sortAscending": ": activate to sort column ascending",
+                    "sortDescending": ": activate to sort column descending"
+                },
+                "emptyTable": "No data available in table",
+                "info": "Showing _START_ to _END_ of _TOTAL_ records",
+                "infoEmpty": "No records found",
+                "infoFiltered": "(filtered1 from _MAX_ total records)",
+                "lengthMenu": "Show _MENU_",
+                "search": "Search:",
+                "zeroRecords": "No matching records found",
+                "paginate": {
+                    "previous":"Prev",
+                    "next": "Next",
+                    "last": "Last",
+                    "first": "First"
+                }
+            },
+
+            // Or you can use remote translation file
+            //"language": {
+            //   url: '//cdn.datatables.net/plug-ins/3cfcc339e89/i18n/Portuguese.json'
+            //},
+
+            // Uncomment below line("dom" parameter) to fix the dropdown overflow issue in the datatable cells. The default datatable layout
+            // setup uses scrollable div(table-scrollable) with overflow:auto to enable vertical scroll(see: assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js). 
+            // So when dropdowns used the scrollable div should be removed. 
+            //"dom": "<'row'<'col-md-6 col-sm-12'l><'col-md-6 col-sm-12'f>r>t<'row'<'col-md-5 col-sm-12'i><'col-md-7 col-sm-12'p>>",
+
+            "bStateSave": true, // save datatable state(pagination, sort, etc) in cookie.
+
+            "lengthMenu": [
+                [5, 15, 20, -1],
+                [5, 15, 20, "All"] // change per page values here
+            ],
+            // set the initial value
+            "pageLength": 5,            
+            "pagingType": "bootstrap_full_number",
+            "columnDefs": [
+                {  // set default column settings
+                    'orderable': false,
+                    'targets': [0]
+                }, 
+                {
+                    "searchable": false,
+                    "targets": [0]
+                },
+                {
+                    "className": "dt-right", 
+                    //"targets": [2]
+                }
+            ],
+            "order": [
+                [1, "asc"]
+            ] // set first column as a default sort by asc
+        });
+}
 
 if (App.isAngularJsApp() === false) {
     jQuery(document).ready(function() {
