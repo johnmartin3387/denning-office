@@ -30,10 +30,10 @@ class Contact_Template(models.Model):
         return "%s" % self.type
 
 class Contact(models.Model):
-    id_type = models.ForeignKey('Attribute', blank=True, null=True)
+    id_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="id_type")
     id_value = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.ForeignKey('Attribute', blank=True, null=True, related_name="title")
     citizenship = models.CharField(max_length=255, blank=True, null=True)
     type = models.CharField(max_length=255, blank=True, null=True)
     info = models.ForeignKey('Contact_Info', blank=True, null=True)
@@ -74,7 +74,7 @@ class Privilege(models.Model):
         db_table = 'Privilege'
 
     def __unicode__(self):
-        return "%s" % self.title
+        return "%s" % self.name
 
 class Group(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -101,21 +101,21 @@ class Staff(models.Model):
     marital = models.BooleanField(default=False)
     spouse_name = models.CharField(max_length=255, blank=True, null=True)
     number_children = models.IntegerField(blank=True, default=0, null=True)
-    qualification = models.CharField(max_length=255, blank=True, null=True)
-    department = models.CharField(max_length=255, blank=True, null=True)
-    position_type = models.CharField(max_length=255, blank=True, null=True)
+    qualification = models.ForeignKey('Attribute', blank=True, null=True, related_name="qualification")
+    department = models.ForeignKey('Attribute', blank=True, null=True, related_name="department_staff")
+    position_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="position_type")
     monthly_salary = models.IntegerField(blank=True, default=0, null=True)
     prev_adjustment_date = models.DateTimeField(blank=True, null=True)
     annual_leave = models.IntegerField(blank=True, default=0, null=True)
-    date_commenced = models.DateTimeField(blank=True, null=True)
-    date_ceased = models.DateTimeField(blank=True, null=True)
-    tenure_employed = models.CharField(max_length=255, blank=True, null=True)
+    date_commenced = models.DateTimeField(blank=True, null=True, default=None)
+    date_ceased = models.DateTimeField(blank=True, null=True, default=None)
+    tenure_employed = models.ForeignKey('Attribute', blank=True, null=True, related_name="tenure")
     status = models.CharField(max_length=255, blank=True, null=True)
     tax_file_no = models.IntegerField(blank=True, default=0, null=True)
     socso_no = models.IntegerField(blank=True, default=0, null=True)
     epf_no = models.IntegerField(blank=True, default=0, null=True)
     remarks = models.TextField(null=True, blank=True)
-    contact = models.ForeignKey('Group', blank=True, null=True)
+    privilege = models.ForeignKey('Group', blank=True, null=True)
 
     class Meta:
         db_table = 'Staff'
@@ -131,14 +131,11 @@ class Normal(models.Model):
 
     registered_office = models.CharField(max_length=255, blank=True, null=True)
     directors = models.CharField(max_length=255, blank=True, null=True)
-    secretary = models.ForeignKey('Staff', blank=True, null=True)
+    secretary = models.ForeignKey('Contact', blank=True, null=True, related_name="secretary")
     template = models.ForeignKey('Contact_Template', blank=True, null=True)
 
     class Meta:
         db_table = 'Normal'
-
-    def __unicode__(self):
-        return "%s" % self.email
 
 class Checklist(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True)
@@ -171,9 +168,10 @@ class Matter_Code(models.Model):
 class Matter(models.Model):
     checklist = models.ForeignKey('Checklist', blank=True, null=True)
     file_number = models.CharField(max_length=255, blank=True, null=True)
+    file_number2 = models.CharField(max_length=255, blank=True, null=True)
     open_date = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=255, blank=True, null=True)
-    related = models.CharField(max_length=255, blank=True, null=True)
+    status = models.ForeignKey('Attribute', blank=True, null=True)
+    related = models.ForeignKey('self', blank=True, null=True)
     pocket_location = models.CharField(max_length=255, blank=True, null=True)
     physical_location = models.CharField(max_length=255, blank=True, null=True)
     box_location = models.CharField(max_length=255, blank=True, null=True)
@@ -183,6 +181,10 @@ class Matter(models.Model):
     remarks = models.TextField(blank=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
     matter_code = models.ForeignKey('Matter_Code', blank=True, null=True)
+    primary_client = models.ForeignKey('Normal', blank=True, null=True, related_name="primary_client")
+    la_in_charge = models.ForeignKey('Staff', blank=True, null=True, related_name="la_in_charge")
+    clerk_in_charge = models.ForeignKey('Staff', blank=True, null=True, related_name="clerk_in_charge")
+    partner_in_charge = models.ForeignKey('Staff', blank=True, null=True, related_name="partner_in_charge")
 
     class Meta:
         db_table = 'Matter'
@@ -238,39 +240,110 @@ class Template(models.Model):
     def __unicode__(self):
         return "%s" % self.name
 
+class Project(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    phase = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    license_no = models.CharField(max_length=255, blank=True, null=True)
+    license_date = models.CharField(max_length=255, blank=True, null=True)
+    # license_expiry_date = models.DateTimeField(blank=True, null=True)
+    permit_no = models.CharField(max_length=255, blank=True, null=True)
+    permit_commencement_date = models.DateTimeField(blank=True, null=True)
+    permit_expiry_date = models.DateTimeField(blank=True, null=True)
+    approval = models.CharField(max_length=255, blank=True, null=True)
+    local_authority = models.ForeignKey('Attribute', blank=True, null=True, related_name="local_authority")
+    complete_date = models.DateTimeField(blank=True, null=True)
+    encumbrances = models.ForeignKey('Normal', blank=True, null=True, related_name="encumbrances")
+    land_tenure = models.ForeignKey('Attribute', blank=True, null=True, related_name="land_tenure")
+    lease_expiry_date = models.DateTimeField(blank=True, null=True)
+    note1 = models.CharField(max_length=255, blank=True, null=True)
+    note2 = models.CharField(max_length=255, blank=True, null=True)
+    developer = models.ForeignKey('Normal', blank=True, null=True, related_name="developer")
+    proprietor = models.ForeignKey('Normal', blank=True, null=True, related_name="proprietor")
+    bank = models.ForeignKey('Normal', blank=True, null=True, related_name="bank")
+    hda_no = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        db_table = 'Project'
+
+    def __unicode__(self):
+        return "%s" % self.name
+
+
+class Mukim(models.Model): 
+    mukim = models.CharField(max_length=255, blank=True, null=True)
+    district = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=255, blank=True, null=True)
+    code = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        db_table = 'Mukim'   
+
+    def __unicode__(self):
+        return "%s" % self.mukim
+
 class Property(models.Model):
     type = models.CharField(max_length=255, blank=True, null=True)
-    individual = models.BooleanField(default=False)
-    title_type = models.CharField(max_length=255, blank=True, null=True)
+    individual = models.BooleanField(default=True)
+    title_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="title_type")
     title_no = models.CharField(max_length=255, blank=True, null=True)
-    lot_type = models.CharField(max_length=255, blank=True, null=True)
+    lot_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="lot_type")
     lot_no = models.CharField(max_length=255, blank=True, null=True)
     mukim = models.CharField(max_length=255, blank=True, null=True)
-    mukim_val = models.CharField(max_length=255, blank=True, null=True)
+    mukim_val = models.ForeignKey('Mukim', blank=True, null=True)
     daerah = models.CharField(max_length=255, blank=True, null=True)
     negeri = models.CharField(max_length=255, blank=True, null=True)
-    area = models.CharField(max_length=255, blank=True, null=True)
-    tenure = models.CharField(max_length=255, blank=True, null=True)
+    area = models.IntegerField(blank=True, default=0, null=True)
+    area_unit = models.CharField(max_length=255, blank=True, null=True)
+    tenure = models.ForeignKey('Attribute', blank=True, null=True, related_name="property_tenure")
     lease_expiry_date = models.DateTimeField(blank=True, null=True)
     title_registeration_date = models.DateTimeField(blank=True, null=True)
-    interest = models.CharField(max_length=255, blank=True, null=True)
-    restriction_against = models.CharField(max_length=255, blank=True, null=True)
-    approving_authority = models.CharField(max_length=255, blank=True, null=True)
-    other_restriction = models.CharField(max_length=255, blank=True, null=True)
-    category_land_use = models.CharField(max_length=255, blank=True, null=True)
-    express_condition = models.CharField(max_length=255, blank=True, null=True)
-    building_type = models.CharField(max_length=255, blank=True, null=True)
-    building_age = models.IntegerField(blank=True, default=0, null=True)
+    interest = models.BooleanField(default=False)
+    buml_lot = models.BooleanField(default=False)
+    malay = models.BooleanField(default=False)
+    restriction_against = models.ForeignKey('Attribute', blank=True, null=True, related_name="restriction_against")
+    approving_authority = models.ForeignKey('Attribute', blank=True, null=True, related_name="approving_authority")
+    other_restriction = models.ForeignKey('Attribute', blank=True, null=True, related_name="other_restriction")
+    category_land_use = models.ForeignKey('Attribute', blank=True, null=True, related_name="category_land_use")
+    express_condition = models.ForeignKey('Attribute', blank=True, null=True, related_name="express_condition")
+    building_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="building_type")
+    building_age = models.CharField(max_length=255, blank=True, null=True)
     postal_address = models.CharField(max_length=255, blank=True, null=True)
-    assessment_rate = models.IntegerField(blank=True, default=0, null=True)
-    annual_quit_rent = models.IntegerField(blank=True, default=0, null=True)
+    assessment_rate = models.FloatField(blank=True, default=0, null=True)
+    annual_quit_rent = models.FloatField(blank=True, default=0, null=True)
     previous_title = models.CharField(max_length=255, blank=True, null=True)
+
+    parcel_no = models.CharField(max_length=255, blank=True, null=True)
+    storey_no = models.CharField(max_length=255, blank=True, null=True)
+    building_no = models.CharField(max_length=255, blank=True, null=True)
+    access_parcel_no = models.CharField(max_length=255, blank=True, null=True)
+    access_storey_no = models.CharField(max_length=255, blank=True, null=True)
+    access_building_no = models.CharField(max_length=255, blank=True, null=True)
+    unit_of_share = models.CharField(max_length=255, blank=True, null=True)
+    total_share = models.CharField(max_length=255, blank=True, null=True)
+    floor_area = models.CharField(max_length=255, blank=True, null=True)
+
+    pacel_spa_no = models.CharField(max_length=255, blank=True, null=True)
+    pacel_spa_value = models.CharField(max_length=255, blank=True, null=True)
+    story_no_spa = models.CharField(max_length=255, blank=True, null=True)
+    block_no = models.CharField(max_length=255, blank=True, null=True)
+    apt_name = models.CharField(max_length=255, blank=True, null=True)
+    access_parcel_no_spa = models.CharField(max_length=255, blank=True, null=True)
+    building_description = models.ForeignKey('Attribute', blank=True, null=True, related_name="building_description")
+    spa_area = models.IntegerField(blank=True, default=0, null=True)
+    spa_area_unit = models.CharField(max_length=255, blank=True, null=True)
+
+    project = models.ForeignKey('Project', blank=True, null=True)
+    master_title = models.TextField(blank=True, null=True)
+
     additional_info = models.TextField(blank=True, null=True)
+    template = models.ForeignKey('Contact_Template', blank=True, null=True)
 
     deleted = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'Property'
+        db_table = 'Property'   
 
     def __unicode__(self):
         return "%s" % self.name
+

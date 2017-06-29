@@ -1,0 +1,29 @@
+<table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
+    <thead>
+        <tr>
+            <th> Project<br/>Name </th>
+            <th> Property <br/>License </th>
+            <th> Developer <br/>ID No. </th>
+            <th> Developer <br/>Name </th>
+            <th> Proprietor <br/>ID No. </th>
+            <th> Proprietor <br/>Name </th>
+            <th> Permit <br/>Expired </th>
+            <th> Actions </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
+        <tr class="odd gradeX">
+            <td> {{ project.name }} </td>
+            <td> {{ project.license_no }} </td>
+            <td> {{ project.developer.contact.id_value|default_if_none:''}} </td>
+            <td> {{ project.developer.contact.name|default_if_none:'' }} </td>
+            <td> {{ project.proprietor.contact.id_value|default_if_none:''}} </td>
+            <td> {{ project.proprietor.contact.name|default_if_none:'' }} </td>
+            <td> {{ project.permit_expiry_date|date:'Y-m-d H:i' }}</td>
+
+            <td> <a href="{% url 'project_edit' %}?id={{project.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{project.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

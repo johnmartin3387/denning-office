@@ -54,7 +54,7 @@
                             <td> {{ contact.name }} </td>
                             <td> {{ contact.id_type }} </td>
                             <td class="center"> {{ contact.info.address1 }} </td>
-                            <td> <a href="{% url 'contact_edit' %}?id={{contact.id}}" type="button" class="btn blue">Update</a><button type="button" class="btn red-mint" onclick="remove('{{contact.id}}')">Remove</button> </td>
+                            <td> <a href="{% url 'contact_edit' %}?id={{contact.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{contact.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
                         </tr>
                         {% endfor %}
                     </tbody>

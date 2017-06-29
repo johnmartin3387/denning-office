@@ -122,7 +122,7 @@
                             <!-- BEGIN INBOX DROPDOWN -->
                             <li class="dropdown dropdown-extended dropdown-inbox" id="header_inbox_bar">
                                 <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                    <i class="icon-envelope-open"></i>
+                                    <i class="fa fa-envelope" aria-hidden="true"></i>
                                     <span class="badge badge-default"> 4 </span>
                                 </a>
                                 <ul class="dropdown-menu">
@@ -275,7 +275,7 @@
                                             <i class="icon-bar-chart"></i>
                                             <span class="title">Matter Code</span>
                                         </a>
-                                    </li>
+                                     </li>
                                     <li class="nav-item">
                                         <a href="{% url 'contact_list' %}" class="nav-link ">
                                             <i class="icon-bar-chart"></i>
@@ -283,6 +283,48 @@
                                         </a>
                                     </li>
                                 </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'mattercode_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Matter Codes</span>
+                                    <span class="arrow"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'contact_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Contact</span>
+                                    <span class="arrow"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'property_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Property</span>
+                                    <span class="arrow"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'matter_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Matter</span>
+                                    <span class="arrow"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'staff_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Staff</span>
+                                    <span class="arrow"></span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'project_list' %}" class="nav-link " style="border: 0px">
+                                    <i class="fa fa-home" aria-hidden="true"></i>   
+                                    <span class="title">Project</span>
+                                    <span class="arrow"></span>
+                                </a>
                             </li>
                             <!-- <li class="heading">
                                 <h3 class="uppercase">Features</h3>
@@ -352,6 +394,7 @@
         <script src="{% static 'layouts/layout/scripts/demo.min.js' %}" type="text/javascript"></script>
         <script src="{% static 'layouts/global/scripts/quick-sidebar.min.js' %}" type="text/javascript"></script>
         <script src="{% static 'layouts/global/scripts/quick-nav.min.js' %}" type="text/javascript"></script>
+        <script src="{% static 'formbuilder/js/polyfiller.js' %}" type="text/javascript"></script>
         <!-- END THEME LAYOUT SCRIPTS -->
 
         {% block extra_js %}{% endblock %}

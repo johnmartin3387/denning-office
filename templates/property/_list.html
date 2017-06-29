@@ -1,0 +1,36 @@
+<table class="table table-striped table-bordered table-hover order-column" id="sample_1">
+    <thead>
+        <tr>
+            <th> Property ID </th>
+            <th> Title Type </th>
+            <th> Title No. </th>
+            <th> Lot Type </th>
+            <th> Lot/PT No. </th>
+            <th> Mukim Type </th>
+            <th> Daerah </th>
+            <th> Project Name </th>
+            <th> Previous Title </th>
+            <th> Bumi Lot </th>
+            <th> M. Reserve Land </th>
+            <th> Actions </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for property in properties %}
+        <tr class="odd gradeX">
+            <td> {{ property.lot_no }} </td>
+            <td> {{ property.title_type.value }} </td>
+            <td> {{ property.title_no }} </td>
+            <td> {{ property.lot_type.value }} </td>
+            <td> {{ property.lot_no }} </td>
+            <td> {{ property.mukim }} </td>
+            <td> {{ property.daerah }} </td>
+            <td> {{ property.project.name }} </td>
+            <td> {{ property.previous_title }} </td>
+            <td> {% if property.buml_lot == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
+            <td> {% if property.malay == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
+            <td> <a href="{% url 'property_edit' %}?id={{property.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{property.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

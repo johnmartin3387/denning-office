@@ -1,21 +1,21 @@
 <table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
     <thead>
         <tr>
-            <th> ID </th>
-            <th> Name </th>
-            <th> ID Type </th>
-            <th> Address </th>
+            <th> Code </th>
+            <th> Matter </th>
+            <th> Category </th>
+            <th> Department </th>
             <th width="20%"> Actions </th>
         </tr>
     </thead>
     <tbody>
-        {% for contact in contacts %}
+        {% for matter_code in matter_codes %}
         <tr class="odd gradeX">
-            <td> {{ contact.id_value }} </td>
-            <td> {{ contact.name }} </td>
-            <td> {{ contact.id_type }} </td>
-            <td class="center"> {{ contact.info.address1 }} </td>
-            <td> <a href="{% url 'contact_edit' %}?id={{contact.id}}" type="button" class="btn blue">Update</a><button type="button" class="btn red-mint" onclick="remove('{{contact.id}}')">Remove</button> </td>
+            <td> {{ matter_code.code }} </td>
+            <td> {{ matter_code.matter_tp }} </td>
+            <td> {{ matter_code.category.value }} </td>
+            <td class="center"> {{ matter_code.department.value }} </td>
+            <td> <a href="{% url 'mattercode_edit' %}?id={{matter_code.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{matter_code.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
         </tr>
         {% endfor %}
     </tbody>

@@ -8,5 +8,8 @@ urlpatterns = [
     url(r'^', include(ContactTemplateResource().urls)),
     url(r'^', include(AttributeResource().urls)),
     url(r'^', include(MatterCodeResource().urls)),
+    url(r'^', include(ContactResource().urls)),
+
+    url(r'update_property_template', views.property_template, name="property_template")
 ]
 

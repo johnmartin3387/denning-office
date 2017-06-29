@@ -91,6 +91,18 @@ class ContactInfoResource(ModelResource):
             'id': ALL
         }
 
+class ContactResource(ModelResource):
+    class Meta:
+        queryset = Contact.objects.all().exclude(type="staff")
+        resource_name = 'contact'
+        allowed_methods = ['get', 'put', 'post']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL,
+        }
+
 class ContactTemplateResource(ModelResource):
     class Meta:
         queryset = Contact_Template.objects.all()
@@ -100,7 +112,8 @@ class ContactTemplateResource(ModelResource):
         authorization = CustomAuthorization()
 
         filtering = {
-            'id': ALL
+            'id': ALL,
+            'type': ALL_WITH_RELATIONS,
         }
 
 class AttributeResource(ModelResource):
@@ -120,6 +133,18 @@ class MatterCodeResource(ModelResource):
     class Meta:
         queryset = Matter_Code.objects.all()
         resource_name = 'matter_code'
+        allowed_methods = ['get', 'put', 'post']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL
+        }
+
+class MatterResource(ModelResource):
+    class Meta:
+        queryset = Matter.objects.all()
+        resource_name = 'matter'
         allowed_methods = ['get', 'put', 'post']
         authentication = DjangoCookieBasicAuthentication()
         authorization = CustomAuthorization()

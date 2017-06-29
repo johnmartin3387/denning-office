@@ -1,0 +1,626 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_tag %}
+
+{% block meta_description %}
+
+{% endblock %}
+{% block extra_css %}
+<link href="{% static 'global/plugins/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2-bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="{% static 'phone/css/intlTelInput.css' %}">
+<link rel="stylesheet" href="{% static 'phone/css/demo.css' %}">
+{% endblock %}
+
+{% block title %} Staff {% endblock %}
+
+{% block content %}
+<div class="row">
+    <form name="defaultForm" method="post" id="defaultForm" role="form" >
+    {% csrf_token %}
+    <input type="hidden" name="id" value="{{contact.id|default_if_none:''}}">
+    <input type="hidden" id="phone_home_val" name="phone_home" value="">
+    <input type="hidden" id="phone_office_val" name="phone_office" value="">
+    <input type="hidden" id="phone_mobile_val" name="phone_mobile" value="">
+    <div class="row" style="margin: -50px 20px 10px 0px;">
+        <a href="{% url 'staff_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+    </div>
+    <div class="col-md-4 ">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                    Personal Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="id_type">ID Type<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="id-type" name="id_type" required>
+                                            <option value="">Select ID.</option>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'ID Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.id_type_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('ID Type');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="id_value">ID
+                            <span class="required" aria-required="true"> * </span></label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="id_value" placeholder="Enter contact id." name="id_value" required="" value="{{contact.id_value|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="name">Name</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="name" placeholder="Enter staff name." name="name" value="{{contact.name|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="nickname">Nick Name
+                            <span class="required" aria-required="true"> * </span></label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="nickname" placeholder="Enter nick name." name="nickname" required value="{{staff.nickname|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="title">Title</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="title" name="title">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Title' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.title_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Title');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="marital">Marital Status</label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="marital" name="marital" onchange="selMarital()">
+                                    <option value="1" {% if staff.marital == True %} selected {% endif %}>Yes </option>
+                                    <option value="0" {% if staff.marital == False %} selected {% endif %}>No</option>
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="spouse_name">Spouse Name</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="spouse_name" placeholder="Enter spouse name." name="spouse_name" value="{{staff.spouse_name|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="number_children">No. of Children</label>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" id="number_children" placeholder="" name="number_children" required value="{{staff.number_children|default_if_none:0}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="citizenship">Citizenship</label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="citizenship" name="citizenship">
+                                    <option value="Option 1">Option 1</option>
+                                    <option value="Option 2">Option 2</option>
+                                    <option value="Option 3">Option 3</option>
+                                    <option value="Option 4">Option 4</option>
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="qualification">Qualification</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="qualification" name="qualification">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Qualification' %}
+                                                <option value="{{attr.id}}"
+                                                {% if staff.qualification_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Qualification');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                     Contact Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label address" for="address1">Address (Line 1)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="address1" placeholder="Enter address line1." name="address1" value="{{contact.info.address1|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label " for="address2">Address (Line 2)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control address" id="address2" placeholder="Enter address line2." name="address2" value="{{contact.info.address2|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="address3">Address (Line 3)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control address" id="address3" placeholder="Enter address line3." name="address3" value="{{contact.info.address3|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="postcode">Postalcode</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="postcode" placeholder="Enter postal code." name="postcode" value="{{zip_code|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="town">Town</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="town" placeholder="Enter town." name="town" value="{{city|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="state">State</label>
+                            <div class="col-md-8">
+                                <select class="form-control select2" id="state" name="state">
+                                    
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="country">Country </label>
+                            <div class="col-md-8">
+                                <select class="form-control select2" id="country" name="country" onchange="selCountry(this)">
+                                    {% for item in countries %}
+                                    <option value="{{item.alpha_2}}" {% if item.alpha_2 == country %} selected {% endif %}>{{item.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+    </div>
+    <div class="col-md-4 ">
+        
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                     Contact Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_home">Phone (Home)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_home">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_office">Phone (Office)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_office">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_mobile">Phone (Mobile)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_mobile">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="fax">Fax</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="fax" placeholder="Enter fax number." name="fax" value="{{contact.info.fax|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="mail_preference">Email Address</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <input type="email" class="form-control" id="mail_preference" placeholder="Enter email." name="mail_preference" value="{{contact.info.mail_preference|default_if_none:''}}">
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-icon-only blue">
+                                            <i class="fa fa-envelope"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="contact_person">Contact Person</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="contact_person" placeholder="" name="contact_person" value="{{contact.info.contact_person|default_if_none:''}}" >
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                     Employment Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="department">Department<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="department" name="department" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Department' %}
+                                                <option value="{{attr.id}}"
+                                                {% if staff.department_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Department');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="position_type">Position Type<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="position-type" name="position_type" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Position Type' %}
+                                                <option value="{{attr.id}}"
+                                                {% if staff.position_type_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Position Type');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="monthly_salary">Monthly Salary</label>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" id="monthly_salary" placeholder="" name="monthly_salary" value="{{staff.monthly_salary|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="prev_adjustment_date">Previous Adjustment Date</label>
+                            <div class="col-md-8 date form_datetime">
+                                <input type="text" class="form-control date-set" id="prev_adjustment_date" placeholder="Select Date" name="prev_adjustment_date" value="{{staff.prev_adjustment_date|date:'Y-m-d H:i'}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="annual_leave">Annual Leave (Days)</label>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" id="annual_leave" placeholder="" name="annual_leave" value="{{staff.annual_leave|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="date_ceased">Date Commenced</label>
+                            <div class="col-md-8 date form_datetime">
+                                <input type="text" class="form-control date-set" id="date_ceased" placeholder="Select Date" name="date_ceased" value="{{staff.date_ceased|date:'Y-m-d H:i'}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="date_commenced">Date Ceased</label>
+                            <div class="col-md-8 date form_datetime">
+                                <input type="text" class="form-control date-set" id="date_commenced" placeholder="Select Date" name="date_commenced" value="{{staff.date_commenced|date:'Y-m-d H:i'}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="tenure_employed">Tenure Employed</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="tenure-employed" name="tenure_employed">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Tenure Employed' %}
+                                                <option value="{{attr.id}}"
+                                                {% if contact.tenure_employed_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Tenure Employed');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="citizenship">Status<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="active" {% if staff.status == 'active' %} selected {% endif %}>Active</option>
+                                    <option value="desable" {% if staff.status == 'desable' %} selected {% endif %}>Desable</option>
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="tax_file_no">Tax File No</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="tax_file_no" placeholder="" name="tax_file_no" value="{{staff.tax_file_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="ird_branch">IRD Branch</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <select class="form-control" id="citizenship" name="citizenship" required>
+                                        <option value="Option 1"></option>
+                                        <option value="Option 2"></option>
+                                    </select>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-icon-only purple">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="socso_no">Socso No</label>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" id="socso_no" placeholder="" name="socso_no" value="{{staff.socso_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="epf_no">EPF No.</label>
+                            <div class="col-md-8">
+                                <input type="number" class="form-control" id="epf_no" placeholder="" name="epf_no" value="{{staff.epf_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+        
+    </div>
+    <div class="col-md-4 ">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                     Login Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="login_id">Login ID<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="login_id" placeholder="" name="login_id" value="{{staff.login_id|default_if_none:''}}" required>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="password">New Password<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8">
+                                <input type="password" class="form-control" id="password" placeholder="" name="password" value="" required {% if contact.id %} disabled {% endif %}>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="confirm">Confirm Password<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8">
+                                <input type="password" class="form-control" id="confirm" placeholder="" name="confirm" value="" required {% if contact.id %} disabled {% endif %}>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+    </div>
+    </form>
+</div>
+
+<div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body form form-horizontal">
+                <div class="form-body">
+                    <div class="form-group form-md-line-input has-success">
+                        <label class="col-md-4 control-label" for="type">Value</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value" onblur="capital(this)">
+                            <input type="hidden" id="list-type" name="list-type">
+                            <div class="form-control-focus"> </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn green" data-dismiss="modal" onclick="commitNewAttr()">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'global/plugins/moment.min.js" type="text/javascript' %}"></script>
+<script src="{% static 'global/plugins/bootstrap-daterangepicker/daterangepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/jquery-validation/js/jquery.validate.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'pages/scripts/ui-modals.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/select2/js/select2.full.min.js' %}" type="text/javascript"></script>
+
+<script src="{% static 'formbuilder/js/jquery-ui.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-builder.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-render.min.js' %}" type="text/javascript"></script>
+
+<script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
+
+<script src="{% static 'phone/js/intlTelInput.js' %}"></script>
+<script src="{% static 'phone/js/utils.js' %}"></script>
+
+<script type="text/javascript">
+
+if (App.isAngularJsApp() === false) {
+    initDateControl()
+
+    checkValidation("#defaultForm", {})
+    initPhoneControl()
+    $("#phone_home").intlTelInput("setNumber", '{{phones|dict:"phone_home"}}');
+    $("#phone_office").intlTelInput("setNumber", '{{phones|dict:"phone_office"}}');
+    $("#phone_mobile").intlTelInput("setNumber", '{{phones|dict:"phone_mobile"}}');
+
+    selMarital()
+
+    $.ajax({
+        type: 'GET',
+        url: '{% url "states" %}'+'?country_code={{country}}'+'&state={{state}}',
+        success: function(data) {
+            $("#state").html(data)
+        }
+    });
+
+    $(".select2, .select2-multiple").select2({
+        placeholder: "",
+        width: null
+    });
+}
+
+function selCountry(obj){
+    $.ajax({
+        type: 'GET',
+        url: '{% url "states" %}'+'?country_code=' + $(obj).val()+'&state=',
+        success: function(data) {
+            $("#state").html(data)
+        }
+    });
+}
+
+function selMarital(){
+    if($("#marital").val() == "0"){
+        $("#spouse_name").attr("disabled", true);
+        $("#number_children").attr("disabled", true);
+    } else {
+        $("#spouse_name").attr("disabled", false);
+        $("#number_children").attr("disabled", false);
+    }
+}
+</script>
+{% endblock %}

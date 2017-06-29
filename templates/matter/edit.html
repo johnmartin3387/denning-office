@@ -1,0 +1,439 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_tag %}
+
+{% block meta_description %}
+
+{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'global/plugins/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'global/plugins/select2/css/select2-bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock %}
+{% block title %} Matter {% endblock %}
+{% block content %}
+<div class="row">
+    <form name="defaultForm" method="post" id="defaultForm" role="form" >
+    {% csrf_token %}
+    <input type="hidden" name="id" id="matter_code_id" value="{{matter_code.id}}">
+    <input type="hidden" name="additional_info" id="additional_info" value="{{matter_code.additional_info}}">
+    <input type="hidden" name="custom_data" value="" class="custom_data">
+    <div class="row" style="margin: -50px 20px 10px 0px;">
+        <a href="{% url 'matter_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+    </div>
+    <div class="col-md-7 ">
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                    Matter Information </div>
+                <div class="tools">
+                    <!-- <a href="javascript: alert();" data-toggle="modal" class="config edit-tool" data-original-title="" title=""> </a>
+                    <a href="javascript:;" class="edit-form edit-tool" onclick="FormBuilder_tp.appendForm(this, 'col-md-6')"> </a> -->
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="primary_client"> File Number <span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="file_number" placeholder="" name="file_number" required value="{{matter.file_number}}" disabled>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="primary_client">Primary Client <span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-9 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="primary_client" name="primary_client_id" onchange="choose_contact(this)" required>
+                                            <option value=""></option>
+                                            {% for item in normals %}
+                                                <option value="{{item.id}}" {% if item.id == matter.primary_client_id %} selected {% endif %}>{{item.contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.contact.id_value}})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'contact_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.primary_client_id == None %} javascript:; {% else %} {% url 'contact_edit' %}?id={{matter.primary_client.contact.id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="file_number2">File No.2 (Manual) </label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="file_number2" placeholder="Enter existing file number." name="file_number2" value="{{matter.file_number2|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="open_date" style="padding-left: 0px">Date File Opened</label>
+                            <div class="col-md-3 date form_datetime">
+                                <input type="text" class="form-control date-set" id="open_date" placeholder="" name="open_date" value="{{matter.open_date|date:'Y-m-d H:i'}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="partner_in_charge">Partner-in-Charge <span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-4 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="partner_in_charge" name="partner_in_charge_id" onchange="choose_contact(this, 'staff')" required>
+                                            <option value=""></option>
+                                            {% for item in contacts %}
+                                                <option value="{{item.id}}" {% if item.id == matter.partner_in_charge_id %} selected {% endif %}>{{item.contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.contact.id_value}})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'staff_edit' %}" class="btn btn-xs blue" style="display: none" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.partner_in_charge_id == None %} javascript:; {% else %} {% url 'staff_edit' %}?id={{matter.partner_in_charge.contact.id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="open_date" style="padding-left: 0px; color: #27a4b0;">Turnaround (Days)</label>
+                            <div class="col-md-3">
+                                <input type="number" class="form-control" id="turnaround" placeholder="" name="turnaround" value="{{matter_code.turnaround|default_if_none:0}}" style="border-bottom: 1px solid #27a4b0;">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="la_in_charge">LA-in-Charge</label>
+                            <div class="col-md-4 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="la_in_charge" name="la_in_charge_id" onchange="choose_contact(this, 'staff')">
+                                            <option value=""></option>
+                                            {% for item in contacts %}
+                                                <option value="{{item.id}}" {% if item.id == matter.la_in_charge_id %} selected {% endif %}>{{item.contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.contact.id_value}})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'staff_edit' %}" class="btn btn-xs blue" style="display: none" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.la_in_charge_id == None %} javascript:; {% else %} {% url 'staff_edit' %}?id={{matter.la_in_charge.contact.id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="status">File Status</label>
+                            <div class="col-md-3 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="file-status" name="status_id" required>
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'File Status' %}
+                                                <option value="{{attr.id}}"
+                                                {% if matter.status_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('File Status');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="clerk_in_charge">Clerk-in-Charge <span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-4 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="clerk_in_charge" name="clerk_in_charge_id" onchange="choose_contact(this, 'staff')" required>
+                                            <option value=""></option>
+                                            {% for item in contacts %}
+                                                <option value="{{item.id}}" {% if item.id == matter.clerk_in_charge_id %} selected {% endif %}>{{item.contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.contact.id_value}})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'staff_edit' %}" class="btn btn-xs blue" style="display: none" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.clerk_in_charge_id == None %} javascript:; {% else %} {% url 'staff_edit' %}?id={{matter.clerk_in_charge.contact.id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="related" style="color: #27a4b0;">Related File No.</label>
+                            <div class="col-md-3 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="related" name="related_id" onchange="choose_contact(this, 'staff')" style="border-bottom: 1px solid #27a4b0;">
+                                            <option value=""></option>
+                                            {% for item in matters %}
+                                                <option value="{{item.id}}" {% if item.id == matter.related_id %} selected {% endif %}>{{item.contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.contact.id_value}})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'matter_edit' %}" class="btn btn-xs blue" style="display: none" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.related_id == None %} javascript:; {% else %} {% url 'matter_edit' %}?id={{matter.related.id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="matter_code">Matter Code <span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-4 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="matter_code" name="matter_code_id" onchange="choose_contact(this); selMatterCode(this)" required>
+                                            <option value=""></option>
+                                            {% for item in matter_codes %}
+                                                <option value="{{item.id}}" {% if item.id == matter.matter_code_id %} selected {% endif %}>{{item.code}} - {{item.matter_tp}}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="{% url 'mattercode_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="{% if matter.matter_code_id == None %} javascript:; {% else %} {% url 'mattercode_edit' %}?id={{matter.matter_code_id}} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            
+                            <label class="col-md-2 control-label" for="pocket_location" style="color: #27a4b0;">Pocket File Location</label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="pocket_location" placeholder="Enter location name." name="pocket_location" onblur="capital(this)" style="border-bottom: 1px solid #27a4b0;" value="{{matter.pocket_location|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="file_matter" style="color: #27a4b0;">File Matter</label>
+                            <div class="col-md-4">
+                               <textarea class="form-control" rows="3" id="file_matter" name="file_matter" disabled style="border-bottom: 1px solid #27a4b0;"></textarea>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="physical_location">Physical File Location<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="physical_location" placeholder="Enter location name." name="physical_location" onblur="capital(this)" required value="{{matter.physical_location|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="file_matter"></label>
+                            <div class="col-md-4">
+                            </div>
+                            <label class="col-md-2 control-label" for="box_location">File Box Location</label>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="box_location" placeholder="Enter location name." name="box_location" onblur="capital(this)" value="{{matter.box_location|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="category">Category</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="category" placeholder="" name="category" disabled="">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="close_date">Date File Closed</label>
+                            <div class="col-md-3 date form_datetime">
+                                <input type="text" class="form-control date-set" id="close_date" placeholder="Selete Date" name="close_date" value="{{project.lease_expiry_date|date:'Y-m-d H:i'}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="department">Department</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="department" placeholder="" name="department" disabled="">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                            <label class="col-md-2 control-label" for="close_date">Checklist Code</label>
+                            <div class="col-md-3 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="checklist" name="checklist">
+                                            <option value="John Martin">John Martin</option>
+                                            <option value="Tony Simth">Tony Simth</option>
+                                        </select>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-xs purple" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-3 control-label" for="file_ref"></label>
+                            <div class="col-md-4">
+                                <!--<input type="text" class="form-control" id="file_ref" placeholder="" name="file_ref" disabled="">
+                                <div class="form-control-focus"> </div>-->
+                            </div>
+                            <label class="col-md-2 control-label" for="billing_code">Billing Code</label>
+                            <div class="col-md-3 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2" id="billing_code" name="billing_code">
+                                            <option value="John Martin">John Martin</option>
+                                            <option value="Tony Simth">Tony Simth</option>
+                                        </select>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-xs purple" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i> </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+    </div>
+    </form>
+    <div class="col-md-5 ">
+        <form name="customForm" method="post" id="customForm" class="custom-form" role="form">
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body form form-horizontal">
+                <div class="form-body">
+                    <div class="form-group form-md-line-input has-success">
+                        <label class="col-md-4 control-label" for="type">Value</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value">
+                            <input type="hidden" id="list-type" name="list-type">
+                            <div class="form-control-focus"> </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn green" data-dismiss="modal" onclick="commitNewAttr()">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'global/plugins/moment.min.js" type="text/javascript' %}"></script>
+<script src="{% static 'global/plugins/bootstrap-daterangepicker/daterangepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/jquery-validation/js/jquery.validate.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/select2/js/select2.full.min.js' %}" type="text/javascript"></script>
+
+<script src="{% static 'formbuilder/js/jquery-ui.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-builder.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-render.min.js' %}" type="text/javascript"></script>
+
+
+<script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+if (App.isAngularJsApp() === false) {
+    $(document).ready(function(){
+        $(".select2, .select2-multiple").select2({
+            placeholder: "",
+            width: null
+        });
+    })
+    initDateControl()
+    checkValidation("#defaultForm", {})
+
+    if($("#matter_code").val() != ""){
+        $.ajax({
+            type: 'GET',
+            url: '/api/matter_code/'+$("#matter_code").val()+'/?format=json',
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function(data) {
+                try {
+                    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["additional_info"])))
+                    FormBuilder_tp.setMode(1)
+                }
+                catch(err) {
+                }
+              
+                initDateControl()
+            }
+        });
+    } 
+}
+
+function selMatterCode(obj){
+    {% for item in matter_codes %}
+        if($(obj).val() == '{{item.id}}'){
+            $("#file_matter").html('{{item.matter_tp}}')
+            $("#category").val('{{item.category.value}}')
+            $("#department").val('{{item.department.value}}')
+        }
+    {% endfor %}
+
+    if($(obj).val() != ""){
+        $.ajax({
+            type: 'GET',
+            url: '/api/matter_code/'+$(obj).val()+'/?format=json',
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function(data) {
+                try {
+                    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["additional_info"]), '{{matter.additional_info}}'))
+                    FormBuilder_tp.setMode(1)
+                }
+                catch(err) {
+                }
+              
+                initDateControl()
+            }
+        });
+
+    }
+}
+</script>
+
+{% endblock %}

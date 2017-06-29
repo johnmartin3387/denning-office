@@ -54,7 +54,7 @@
                             <td> {{ matter_code.matter_tp }} </td>
                             <td> {{ matter_code.category.value }} </td>
                             <td class="center"> {{ matter_code.department.value }} </td>
-                            <td> <a href="{% url 'mattercode_edit' %}?id={{matter_code.id}}" type="button" class="btn blue">Update</a><button type="button" class="btn red-mint" onclick="remove('{{matter_code.id}}')">Remove</button> </td>
+                            <td> <a href="{% url 'mattercode_edit' %}?id={{matter_code.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{matter_code.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -85,11 +85,11 @@ var FormBuilder_tp = function() {
 
             if(formBuilder != null){
                 jsonData = formBuilder.actions.getData('json', true)
+                
+                jsonData = convertBJsonToRJson(jsonData)
+                html = convertJsonToHtml(jsonData)
 
-                json = convertBJsonToRJson(jsonData)
-                html = convertJsonToHtml(json)
-
-                updateData(getIDByObj(obj), header_edit.val(), JSON.parse(jsonData))
+                updateData(getIDByObj(obj), header_edit.val(), jsonData)
 
                 $(obj).parent().parent().next().children().eq(0).html(html)
 
@@ -108,12 +108,10 @@ var FormBuilder_tp = function() {
 
                 $('.defaultrange_modal').daterangepicker({
                         opens: (App.isRTL() ? 'left' : 'right'),
-                        format: 'MM/DD/YYYY',
+                        format: 'Y-m-d',
                         separator: ' to ',
                         startDate: moment().subtract('days', 29),
                         endDate: moment(),
-                        minDate: '01/01/2012',
-                        maxDate: '12/31/2018',
                     },
                     function (start, end) {
                         $('.defaultrange_modal input').val(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -135,9 +133,17 @@ var FormBuilder_tp = function() {
         $(obj).parent().parent().parent().remove()
     }
 
-    var getCustomForm = function(json){
+    var getCustomForm = function(json, values){
         var res = ""
         jsonDataForDB = json
+        try { 
+            values = values.replace(/&quot;/g, "\"")
+            values = JSON.parse(values)
+        }
+        catch(err){
+            values = {}
+        }
+
         for(var i=0; i<json.length; i++){
             var str = '<div class="portlet box purple custom-form-item"> \
                         <div class="portlet-title"> \
@@ -152,7 +158,7 @@ var FormBuilder_tp = function() {
                         </div> \
                         <div class="portlet-body form form-horizontal"> \
                                 <div class="form-body" for="'+json[i][0]+'"> ' +
-                                convertJsonToHtml(json[i][1])
+                                convertJsonToHtml(json[i][1], values)
                                 + ' \
                                 </div> \
                         </div> \
@@ -178,17 +184,17 @@ var FormBuilder_tp = function() {
 
     var getFormBuilder = function(indicator){
         var options = {
-          disabledAttrs: ["value", "className", "name", "access", "help", 
-                    "inline", "other", "style", "toggle"],
+          disabledAttrs: ["value", "className", "access", "help", 
+                    "inline", "other", "style", "toggle", "required"],
           disabledActionButtons: ['data', 'clear', 'save'],
+          disableFields: ['button'],
           typeUserAttrs: {
             autocomplete: {
               className: {
                 label: 'Type',
                 options: {
-                  'red form-control': 'Red',
-                  'green form-control': 'Green',
-                  'blue form-control': 'Blue'
+                  'single': 'single',
+                  'multiple': 'multiple'
                 }
               }
             },
@@ -233,20 +239,24 @@ var FormBuilder_tp = function() {
     var convertBJsonToRJson = function(jsonData){
         jsonData = JSON.parse(jsonData)
         for(var idx=0; idx<jsonData.length; idx++){
-            console.log(jsonData[idx])
+            if(jsonData[idx]["name"] == undefined){
+                jsonData[idx]["name"] = "name-" + genRand().toString()
+            }
         }
         return jsonData
     }
 
-    var getInputStr = function(element, placeholder){
+    var getInputStr = function(element, placeholder, value){
         var type = element["subtype"]
         if(type == undefined)
             type = element["type"]
+        if(value == undefined)
+            value = ""
 
         var html = '<div class="form-group form-md-line-input has-success"> \
             <label class="col-md-4 control-label">'+ element["label"] +'</label> \
             <div class="col-md-8"> \
-                <input type="' + type + '" class="form-control" placeholder="'+ placeholder +'" name="'+ slugify(element['label']) +'"> \
+                <input type="' + type + '" class="form-control" placeholder="'+ placeholder +'" name="'+ element['name'] +'" value="'+ value +'"> \
                 <div class="form-control-focus"> </div> \
             </div> \
         </div>'
@@ -258,23 +268,27 @@ var FormBuilder_tp = function() {
         var html = '<a href="javascript:;" class="btn default"> Link </a>'
     }
 
-    var getDateStr = function(element, placeholder){
+    var getDateStr = function(element, placeholder, value){
+        if(value == undefined)
+            value = ""
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
                         <div class="col-md-8 date form_datetime">\
-                            <input type="text" placeholder="'+ placeholder +'" name="'+ slugify(element['label']) +'" class="form-control date-set"> \
+                            <input type="text" placeholder="'+ placeholder +'" name="'+ element['name'] +'" class="form-control date-set" value="'+ value +'"> \
                         </div> \
                     </div>'
 
         return html
     }
 
-    var getDateRangeStr = function(element, placeholder){
+    var getDateRangeStr = function(element, placeholder, value){
+        if(value == undefined)
+            value = ""
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
                         <div class="col-md-8"> \
                             <div class="input-group input-large defaultrange_modal"> \
-                                <input type="text" class="form-control"> \
+                                <input type="text" class="form-control" name="'+ element['name'] +'" value="'+ value +'"> \
                                 <span class="input-group-btn"> \
                                     <button class="btn default date-range-toggle" type="button"> \
                                         <i class="fa fa-calendar"></i> \
@@ -287,69 +301,154 @@ var FormBuilder_tp = function() {
         return html
     }
 
-    var getTextareaStr = function(element, placeholder){
+    var getTextareaStr = function(element, placeholder, value){
+        if(value == undefined)
+            value = ""
+
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
                         <div class="col-md-8"> \
-                            <textarea class="form-control" rows="3" placeholder="'+ placeholder +'" name="'+ slugify(element['label']) +'"> </textarea> \
+                            <textarea class="form-control" rows="3" placeholder="'+ placeholder +'" name="'+ element['name'] +'">'+ value +'</textarea> \
                         </div> \
                     </div>'
 
         return html
     }
 
-    var getCheckboxStr = function(element, placeholder){
+    var getCheckboxStr = function(element, placeholder, value){
+        if(value == "on")
+            value = "checked"
+        else
+            value = ""
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
                         <div class="col-md-8"> \
-                            <input type="checkbox" class="md-check" placeholder="'+ placeholder +'" name="'+ slugify(element['label']) +'"> \
-                            <label for="interest"> \
-                                <span></span> \
-                                <span class="check"></span> \
-                                <span class="box"></span></label> \
+                            <div class="md-checkbox-inline"> \
+                                <div class="md-checkbox col-md-8" style="margin-left:15%;"> \
+                                    <input type="checkbox" id="checkbox" placeholder="'+ placeholder +'" name="'+ element['name'] +'" class="md-check" '+ value +'> \
+                                    <label for="checkbox"> \
+                                        <span></span> \
+                                        <span class="check"></span> \
+                                        <span class="box"></span>  </label> \
+                                </div> \
+                            </div> \
                         </div> \
                     </div>'
 
         return html
     }
 
-    var getAutoCompleteStr = function(element, placeholder){
+    var getAutoCompleteStr = function(element, placeholder, value){
+        var result = $.ajax({
+            type: "GET",
+            url: '/api/contact/?format=json',
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            async: false
+        }).responseText;
+        result = JSON.parse(result)
+        contacts = ""
+        if(value == undefined)
+            value = []
+        else if(element["className"] == "multiple")
+            value = value.split(",")
+        else
+            value = [value]
+
+
+        for(var i=0; i<result["objects"].length; i++){
+            var selected = "", href = "javascript:;"
+            if(result["objects"][i]["id"] == value[0]){
+                selected = "selected"
+                href = "/contact/update?id=" + value[0]
+            }
+            contacts += '<option value="'+result["objects"][i]["id"]+'" '+selected+'>'+result["objects"][i]["name"]+' &nbsp;&nbsp;&nbsp;&nbsp; ('+result["objects"][i]["id_value"]+')</option>'
+        }
         var html = '<div class="form-group form-md-line-input has-success"> \
-                        <label class="col-md-4 control-label">'+ element["label"] +'</label> \
+                        <label class="col-md-4 control-label" for="director">'+ element["label"] +'</label> \
                         <div class="col-md-8 input-group-control"> \
-                            <div class="input-group input-group-sm">\
-                            <div class="input-group-control"> \
-                            <select class="form-control" name="'+ slugify(element['label']) +'"> \
-                                <option value="">Option 1</option> \
-                                <option value="">Option 2</option> \
-                                <option value="">Option 3</option> \
-                                <option value="">Option 4</option> \
-                            </select> \
-                            </div> \
-                            <span class="input-group-btn btn-right"> \
-                                <a href="javascript:;" class="btn btn-icon-only blue"> \
-                                    <i class="fa fa-search"></i> \
-                                </a> \
-                            </span> \
+                            <div class="input-group input-group-sm"> \
+                                <div class="input-group-control"> \
+                                    <select class="form-control select2" name="'+ element['name'] +'" onchange="choose_contact(this)"> \
+                                        <option value=""></option> '+ contacts +' \
+                                    </select> \
+                                    <div class="form-control-focus"> </div> \
+                                </div> \
+                                <span class="input-group-btn btn-right"> \
+                                    <a href="/contact/update" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank"> \
+                                        <i class="fa fa-plus"></i> </a> \
+                                    <a href="'+href+'" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;"> \
+                                        <i class="fa fa-search"></i> \
+                                    </a> \
+                                </span> \
                             </div> \
                         </div> \
                     </div>'
+
+        for(var idx=1; idx<value.length; idx++){
+            contacts = ""
+            for(var i=0; i<result["objects"].length; i++){
+                var selected = "", href = "javascript:;"
+                if(result["objects"][i]["id"] == value[idx]){
+                    selected = "selected"
+                    href = "/contact/update?id=" + value[idx]
+                }
+                contacts += '<option value="'+result["objects"][i]["id"]+'" '+selected+'>'+result["objects"][i]["name"]+' &nbsp;&nbsp;&nbsp;&nbsp; ('+result["objects"][i]["id_value"]+')</option>'
+            }
+            html += '<div class="form-group form-md-line-input has-success"> \
+                            <label class="col-md-4 control-label" for="director">'+ element["label"] +'</label> \
+                            <div class="col-md-8 input-group-control"> \
+                                <div class="input-group input-group-sm"> \
+                                    <div class="input-group-control"> \
+                                        <select class="form-control select2" name="'+ element['name'] +'" onchange="choose_contact(this)"> \
+                                            <option value=""></option> '+ contacts +' \
+                                        </select> \
+                                        <div class="form-control-focus"> </div> \
+                                    </div> \
+                                    <span class="input-group-btn btn-right"> \
+                                        <a href="/contact/update" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank"> \
+                                            <i class="fa fa-plus"></i> </a> \
+                                        <a href="'+href+'" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;"> \
+                                            <i class="fa fa-search"></i> \
+                                        </a> \
+                                    </span> \
+                                </div> \
+                            </div> \
+                        </div>'
+        }
+
+        if(element["className"] == "multiple"){
+            html += '<div class="form-group form-md-line-input has-success"> \
+                        <label class="col-md-8 control-label" for="marital_status"></label> \
+                        <div class="col-md-4"> \
+                            <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-plus" onclick="addContact(this, \''+ element["label"] +'\', \''+ element["name"] +'\')"></i> </a> \
+                            <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-minus" onclick="removeContact(this)"></i> </a> \
+                        </div> \
+                    </div>'
+        }
         return html
     }
 
-    var getSelectStr = function(element, placeholder){
+    var getSelectStr = function(element, placeholder, value){
         var options = ""
+        if(value == undefined)
+            value = ""
+
         if(element["values"] != undefined){
             for(var index=0; index<element["values"].length; index++){
-                options += '<option value="'+ element["values"][index]["value"] 
-                    +'">'+ element["values"][index]["label"] +'</option>'
+                if(element["values"][index]["value"] == value)
+                    options += '<option value="'+ element["values"][index]["value"] 
+                        +'" selected>'+ element["values"][index]["label"] +'</option>'
+                else
+                    options += '<option value="'+ element["values"][index]["value"] 
+                        +'">'+ element["values"][index]["label"] +'</option>'
             }
         }
 
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
                         <div class="col-md-8"> \
-                            <select class="form-control" name="'+ slugify(element['label']) +'"> \
+                            <select class="form-control" name="'+ element['name'] +'"> \
                                 '+ options +' \
                             </select> \
                         </div> \
@@ -359,9 +458,12 @@ var FormBuilder_tp = function() {
     }
 
     // convert json data into html string
-    var convertJsonToHtml = function(jsonData){
+    var convertJsonToHtml = function(jsonData, values){
         var html = ""
+        if(values == undefined)
+            values = {}
         for(var idx=0; idx<jsonData.length; idx++){
+            
             element = jsonData[idx]
             var placeholder = element["placeholder"]
             if(placeholder == undefined)
@@ -369,19 +471,19 @@ var FormBuilder_tp = function() {
 
             // for input element
             if(element["type"] == "text" || element["type"] == "number"){
-                html += getInputStr(element, placeholder)
+                html += getInputStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "date" && element["className"] == "single"){
-                html += getDateStr(element, placeholder)
+                html += getDateStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "date" && element["className"] == "range"){
-                html += getDateRangeStr(element, placeholder)
+                html += getDateRangeStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "textarea"){
-                html += getTextareaStr(element, placeholder)
+                html += getTextareaStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "checkbox-group"){
-                html += getCheckboxStr(element, placeholder)
+                html += getCheckboxStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "autocomplete"){
-                html += getAutoCompleteStr(element, placeholder)
+                html += getAutoCompleteStr(element, placeholder, values[element['name']])
             } else if(element["type"] == "select"){
-                html += getSelectStr(element, placeholder)
+                html += getSelectStr(element, placeholder, values[element['name']])
             }
                 
         }
@@ -415,6 +517,7 @@ var FormBuilder_tp = function() {
                 var name = $("#new_type").val()
                 if(name == "")
                     return
+
                 $.ajax({
                     type: 'post',
                     url: '/api/contact_template/',
@@ -433,12 +536,20 @@ var FormBuilder_tp = function() {
                     data: JSON.stringify({"json": JSON.stringify(json)}),
                     dataType: 'json',
                     success: function(data) {
-                      
+                        
                     }
                 });
             }
         } else if(form_type == "matter"){
             $("#additional_info").val(JSON.stringify(json))
+        } else if(form_type == "property"){
+            $.ajax({
+                type: 'get',
+                url: '/api/update_property_template/?json=' + JSON.stringify(json),
+                success: function(data) {
+                    
+                }
+            });
         }
     }
 
@@ -479,8 +590,8 @@ var FormBuilder_tp = function() {
         commitData: function(json) {
             commitData(json);
         },
-        getCustomForm: function(json){
-            return getCustomForm(json)
+        getCustomForm: function(json, values){
+            return getCustomForm(json, values)
         },
         setMode: function(param){
             setMode(param)
@@ -559,6 +670,53 @@ var checkValidation = function(indicator, rule){
             label
                 .closest('.form-group').removeClass('has-error'); // set success class to the control group
         },
+        submitHandler: function (form) {
+            var temp = $("#customForm").serializeArray()
+            var custom = {}
+
+            for(var i=0; i<temp.length; i++){
+                if(custom[temp[i]["name"]] == undefined)
+                    custom[temp[i]["name"]] = temp[i]["value"]
+                else
+                    custom[temp[i]["name"]] += "," + temp[i]["value"]
+            }
+            custom = JSON.stringify(custom)
+
+            $(".custom_data").val(custom)
+
+            if($("#phone_home").val() != undefined){
+                valid = 1
+                if($("#phone_home").val() != "" && $("#phone_home").intlTelInput("isValidNumber") == false){
+                    $("#phone_home").parent().parent().parent().addClass("has-error");
+                    $("#phone_home_val").val("")
+                    valid = 0
+                } else {
+                    $("#phone_home").parent().parent().parent().removeClass("has-error");
+                    $("#phone_home_val").val($("#phone_home").intlTelInput("getNumber"))
+                }
+                if($("#phone_office").val() != "" && $("#phone_office").intlTelInput("isValidNumber") == false){
+                    $("#phone_office").parent().parent().parent().addClass("has-error");
+                    $("#phone_office_val").val("")
+                    valid = 0
+                } else {
+                    $("#phone_office").parent().parent().parent().removeClass("has-error");
+                    $("#phone_office_val").val($("#phone_office").intlTelInput("getNumber"))
+                }
+                if($("#phone_mobile").val() != "" && $("#phone_mobile").intlTelInput("isValidNumber") == false){
+                    $("#phone_mobile").parent().parent().parent().addClass("has-error");
+                    $("#phone_mobile_val").val("")
+                    valid = 0
+                } else {
+                    $("#phone_mobile").parent().parent().parent().removeClass("has-error");
+                    $("#phone_mobile_val").val($("#phone_mobile").intlTelInput("getNumber"))
+                }
+
+                if(valid == 0)
+                    return
+            }
+
+            form[0].submit(); // submit the form
+        }
     })
 }
 
@@ -607,27 +765,67 @@ var datatables = function(indicator){
             "pageLength": 5,            
             "pagingType": "bootstrap_full_number",
             "columnDefs": [
-                {  // set default column settings
-                    'orderable': false,
-                    'targets': [0]
-                }, 
-                {
-                    "searchable": false,
-                    "targets": [0]
-                },
                 {
                     "className": "dt-right", 
                     //"targets": [2]
                 }
             ],
             "order": [
-                [1, "asc"]
+                [0, "asc"]
             ] // set first column as a default sort by asc
         });
+}
+
+var initDateControl = function(){
+    $(".form_datetime").datetimepicker({
+        autoclose: true,
+        isRTL: App.isRTL(),
+        format: "yyyy-mm-dd hh:ii",
+        pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
+    });
+
+    $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+    // Workaround to fix datetimepicker position on window scroll
+    $( document ).scroll(function(){
+        $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
+    });
+}
+
+var initPhoneControl = function(){
+    $(".phone").intlTelInput(
+        {
+            geoIpLookup: function(callback) {
+            $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+                var countryCode = (resp && resp.country) ? resp.country : "";
+                callback(countryCode);
+            });
+        },
+        initialCountry: "auto"})
+}
+
+var getFormatString = function(){
+    $('.address').each(function(index, item) {
+        
+    });
+}
+
+var choose_contact = function(obj, type="contact"){
+    var id = $(obj).val()
+    $(obj).parent().next().children().eq(1).attr('href', "/"+type+"/update?id="+id)
 }
 
 if (App.isAngularJsApp() === false) {
     jQuery(document).ready(function() {
         FormBuilder_tp.init();
     });
+}
+
+var capital = function(obj){
+    var s = $(obj).val().split(' ');
+    for(var i=0; i<s.length; i++) {
+        s[i] = s[i].substring(0,1).toUpperCase() + s[i].substring(1);
+    }
+    s = s.join(' ');
+
+    $(obj).val(s);
 }

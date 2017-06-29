@@ -12,6 +12,9 @@
 <link href="{% static 'global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet" type="text/css" />
 <link href="{% static 'global/plugins/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
 <link href="{% static 'global/plugins/select2/css/select2-bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="{% static 'phone/css/intlTelInput.css' %}">
+<link rel="stylesheet" href="{% static 'phone/css/demo.css' %}">
 {% endblock %}
 
 {% block title %} Contact {% endblock %}
@@ -20,9 +23,15 @@
 <div class="row">
     <form name="defaultForm" method="post" id="defaultForm" role="form" >
     {% csrf_token %}
-    <input type="hidden" name="contact_id" value="{{contact.id}}">
+    <input type="hidden" name="contact_id" value="{{contact.id|default_if_none:''}}">
+    <input type="hidden" name="custom_data" value="" class="custom_data">
+    <input type="hidden" id="phone_home_val" name="phone_home" value="">
+    <input type="hidden" id="phone_office_val" name="phone_office" value="">
+    <input type="hidden" id="phone_mobile_val" name="phone_mobile" value="">
     <div class="row" style="margin: -50px 20px 10px 0px;">
-        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('contact')">Edit Form</a> <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('contact')">Edit Form</a> 
+        <a href="{% url 'contact_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
     </div>
     <div class="col-md-4 ">
         <div class="portlet box purple ">
@@ -60,137 +69,6 @@
             </div>
         </div>
 
-        
-        <!-- BEGIN SAMPLE FORM PORTLET-->
-        <div class="portlet box purple ">
-            <div class="portlet-title">
-                <div class="caption">
-                     Contact Information </div>
-                <div class="tools">
-                    <a href="" class="collapse"> </a>
-                </div>
-            </div>
-            <div class="portlet-body form form-horizontal">
-                    <div class="form-body">
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="address1">Address (Line 1)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="address1" placeholder="Enter address line1." name="address1" value="{{contact.info.address1}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="address2">Address (Line 2)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="address2" placeholder="Enter address line2." name="address2" value="{{contact.info.address2}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="address3">Address (Line 3)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="address3" placeholder="Enter address line3." name="address3" value="{{contact.info.address3}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="postcode">Postalcode</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="postcode" placeholder="Enter postal code." name="postcode" value="{{contact.info.postcode}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="town">Town</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="town" placeholder="Enter town." name="town" value="{{contact.info.town}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="state">State</label>
-                            <div class="col-md-8">
-                                <select class="form-control" id="state" name="state">
-                                    <option value="Kuala Lumpur">Kuala Lumpur</option>
-                                </select>
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="country">Country</label>
-                            <div class="col-md-8">
-                                <select class="form-control" id="country" name="country">
-                                    <option value="Malaysia">Malaysia</option>
-                                </select>
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="phone_home">Phone (Home)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="phone_home" placeholder="Enter phone number." name="phone_home">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="phone_office">Phone (Office)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="phone_office" placeholder="Enter office phone number." name="phone_office">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="phone_mobile">Phone (Mobile)</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="phone_mobile" placeholder="Enter mobile phone number." name="phone_mobile">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="fax">Fax</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="fax" placeholder="Enter fax number." name="fax" value="{{contact.info.fax}}">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="mail_preference">Email Address</label>
-                            <div class="col-md-8 input-group-control">
-                                <div class="input-group input-group-sm">
-                                    <div class="input-group-control">
-                                        <input type="text" class="form-control" id="mail_preference" placeholder="Enter email." name="mail_preference" value="{{contact.info.mail_preference}}">
-                                    </div>
-                                    <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-icon-only blue">
-                                            <i class="fa fa-envelope"></i>
-                                        </a>
-                                    </span>
-                                </div>
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="proprietor">Website</label>
-                            <div class="col-md-8 input-group-control">
-                                <div class="input-group input-group-sm">
-                                    <div class="input-group-control">
-                                        <input type="text" class="form-control" id="fax" placeholder="Enter website." name="website" value="{{contact.website}}">
-                                    </div>
-                                    <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-icon-only blue">
-                                            <i class="fa fa-link"></i>
-                                        </a>
-                                    </span>
-                                </div>
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                    </div>
-            </div>
-        </div>
-        <!-- END SAMPLE FORM PORTLET-->
-    </div>
-    <div class="col-md-4 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
         <div class="portlet box purple ">
             <div class="portlet-title">
@@ -230,14 +108,14 @@
                             <label class="col-md-4 control-label" for="id_value">ID
                             <span class="required" aria-required="true"> * </span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="id_value" placeholder="Enter contact id." name="id_value" required="" value="{{contact.id_value}}">
+                                <input type="text" class="form-control" id="id_value" placeholder="Enter contact id." name="id_value" required="" value="{{contact.id_value|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="old_ic">Old IC</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="old_ic" placeholder="Enter old ic." name="old_ic" value="{{normal.old_ic}}">
+                                <input type="text" class="form-control" id="old_ic" placeholder="Enter old ic." name="old_ic" value="{{normal.old_ic|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -245,7 +123,7 @@
                             <label class="col-md-4 control-label" for="name">Name
                             <span class="required" aria-required="true"> * </span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="name" placeholder="Enter contact name." name="name" required value="{{contact.name}}">
+                                <input type="text" class="form-control" id="name" placeholder="Enter contact name." name="name" required value="{{contact.name|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -294,13 +172,147 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="name">GST Reg. No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="gst_reg_no" placeholder="Enter GST registration number." name="gst_reg_no" value="{{contact.gst_reg_no}}">
+                                <input type="text" class="form-control" id="gst_reg_no" placeholder="Enter GST registration number." name="gst_reg_no" value="{{contact.gst_reg_no|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                     </div>
             </div>
         </div>
+
+    </div>
+    <div class="col-md-4 ">
+        
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                     Contact Information </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="address1">Address (Line 1)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="address1" placeholder="Enter address line1." name="address1" value="{{contact.info.address1|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="address2">Address (Line 2)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="address2" placeholder="Enter address line2." name="address2" value="{{contact.info.address2|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="address3">Address (Line 3)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="address3" placeholder="Enter address line3." name="address3" value="{{contact.info.address3|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="postcode">Postalcode</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="postcode" placeholder="Enter postal code." name="postcode" value="{{zip_code|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="town">Town</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="town" placeholder="Enter town." name="town" value="{{city|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="state">State</label>
+                            <div class="col-md-8">
+                                <select class="form-control select2" id="state" name="state">
+                                    
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="country">Country </label>
+                            <div class="col-md-8">
+                                <select class="form-control select2" id="country" name="country" onchange="selCountry(this)">
+                                    {% for item in countries %}
+                                    <option value="{{item.alpha_2}}" class="{{item.alpha_2}}" {% if item.alpha_2 == country %} selected {% endif %}>{{item.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_home">Phone (Home)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_home">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_office">Phone (Office)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_office">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="phone_mobile">Phone (Mobile)</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control phone" id="phone_mobile">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="fax">Fax</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="fax" placeholder="Enter fax number." name="fax" value="{{contact.info.fax|default_if_none:''}}">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="mail_preference">Email Address</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <input type="text" class="form-control" id="mail_preference" placeholder="Enter email." name="mail_preference" value="{{contact.info.mail_preference|default_if_none:''}}">
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-icon-only blue" onclick="mailto()">
+                                            <i class="fa fa-envelope"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="proprietor">Website</label>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <input type="text" class="form-control" id="website" placeholder="Enter website." name="website" value="{{contact.info.website|default_if_none:''}}">
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a href="javascript:;" class="btn btn-icon-only blue" onclick="go_to()">
+                                            <i class="fa fa-link"></i>
+                                        </a>
+                                    </span>
+                                </div>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
         <!-- END SAMPLE FORM PORTLET-->
         <!-- BEGIN SAMPLE FORM PORTLET-->
         <!-- <div class="portlet box purple ">
@@ -430,52 +442,85 @@
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
+                        {% if directors == None %}
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="director">Director</label>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="director" name="director[]">
-                                            <option value="John Martin">John Martin</option>
-                                            <option value="Tony Simth">Tony Simth</option>
-                                            <option value="John Davis">John Davis</option>
-                                            <option value="Sam Martin">Sam Martin</option>
+                                        <select class="form-control select2" id="director" name="director[]" onchange="choose_contact(this)">
+                                            <option value=""></option>
+                                            {% for item in contacts %}
+                                                <option value="{{item.id}}">{{item.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.id_value}})</option>
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a href="{% url 'contact_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
                                             <i class="fa fa-plus"></i> </a>
-                                        <a href="javascript:;" class="btn btn-xs purple" style="margin-left: 2px;">
-                                            <i class="fa fa-search"></i> </a>
+                                        <a href="javascript:;" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
+                        {% else %}
+                        {% for director in directors %}
+                            <div class="form-group form-md-line-input has-success">
+                                <label class="col-md-4 control-label" for="director">Director</label>
+                                <div class="col-md-8 input-group-control">
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-control">
+                                            <select class="form-control select2" id="director" name="director[]" onchange="choose_contact(this)">
+                                                <option value=""></option>
+                                                {% for contact in contacts %}
+                                                    <option value="{{contact.id}}" {% if contact.id == director.id %} selected {% endif %}>{{contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{contact.id_value}})</option>
+                                                {% endfor %}
+                                            </select>
+                                            <div class="form-control-focus"> </div>
+                                        </div>
+                                        <span class="input-group-btn btn-right">
+                                            <a href="{% url 'contact_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
+                                                <i class="fa fa-plus"></i> </a>
+                                            <a href="{% url 'contact_edit' %}?id={{ director.id }}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                                <i class="fa fa-search"></i>
+                                            </a>
+                                        </span>
+                                    </div>
+                                    <div class="form-control-focus"> </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% endif %}
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-8 control-label" for="marital_status"></label>
                             <div class="col-md-4">
-                                <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-plus" onclick="addDirector(this)"></i> </a>
-                                <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-minus" onclick="removeDirector(this)"></i> </a>
+                                <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-plus" onclick="addContact(this, 'Director', 'director[]')"></i> </a>
+                                <a href="javascript:;" class="btn btn-xs default"><i class="fa fa-minus" onclick="removeContact(this)"></i> </a>
                             </div>
-                        </div>
+                        </div>  
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="director">Secretary</label>
+                            <label class="col-md-4 control-label" for="secretary">Secretary</label>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="secretary" name="secretary">
-                                            <option value="Option 1">John Martin</option>
-                                            <option value="Option 2">Tony Simth</option>
-                                            <option value="Option 3">John Davis</option>
-                                            <option value="Option 4">Sam Martin</option>
+                                        <select class="form-control select2" id="secretary" name="secretary_id" onchange="choose_contact(this)">
+                                            <option value=""></option>
+                                            {% for item in contacts %}
+                                                <option value="{{item.id}}" {% if item.id == normal.secretary.id %} selected {% endif %}>{{item.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{item.id_value}})</option>
+                                            {% endfor %}
                                         </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;">
+                                        <a href="{% url 'contact_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
                                             <i class="fa fa-plus"></i> </a>
-                                        <a href="javascript:;" class="btn btn-xs purple" style="margin-left: 2px;">
-                                            <i class="fa fa-search"></i> </a>
+                                        <a href="{% if normal.secretary_id == None %} javascript:; {% else %} {% url 'contact_edit' %}?id={{ normal.secretary_id }} {% endif %}" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i>
+                                        </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
@@ -485,7 +530,7 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="contact_person">Contact Person</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="contact_person" placeholder="" name="contact_person" value="{{contact.info.contact_person}}">
+                                <input type="text" class="form-control" id="contact_person" placeholder="" name="contact_person" value="{{contact.info.contact_person|default_if_none:''}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -495,8 +540,9 @@
         <!-- END SAMPLE FORM PORTLET-->
     </div>
     </form>
-    <div class="col-md-4 custom-form">
-        
+    <div class="col-md-4 ">
+        <form name="customForm" method="post" id="customForm" class="custom-form" role="form">
+        </form>
     </div>
 </div>
 
@@ -512,7 +558,7 @@
                     <div class="form-group form-md-line-input has-success">
                         <label class="col-md-4 control-label" for="type">Value</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value" onblur="capital(this)">
                             <input type="hidden" id="list-type" name="list-type">
                             <div class="form-control-focus"> </div>
                         </div>
@@ -547,6 +593,9 @@
 
 <script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
 
+<script src="{% static 'phone/js/intlTelInput.js' %}"></script>
+<script src="{% static 'phone/js/utils.js' %}"></script>
+
 <script type="text/javascript">
 
 function Interest_enable(obj){
@@ -558,29 +607,30 @@ function Interest_enable(obj){
 }
 
 var numofdirector = 1
-function addDirector(obj){
+function addContact(obj, label, name){
     str = '<div class="form-group form-md-line-input has-success"> \
-                <label class="col-md-4 control-label" for="director">Director</label> \
-                <div class="col-md-8 input-group-control"> \
-                    <div class="input-group input-group-sm"> \
-                        <div class="input-group-control"> \
-                            <select class="form-control select2" id="director" name="director[]"> \
-                                <option value="John Martin">John Martin</option> \
-                                <option value="Tony Simth">Tony Simth</option> \
-                                <option value="John Davis">John Davis</option> \
-                                <option value="Sam Martin">Sam Martin</option> \
-                            </select>\
-                        </div> \
-                        <span class="input-group-btn btn-right"> \
-                            <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;"> \
-                                <i class="fa fa-plus"></i> </a> \
-                            <a href="javascript:;" class="btn btn-xs purple" style="margin-left: 2px;"> \
-                                <i class="fa fa-search"></i> </a> \
-                        </span> \
+            <label class="col-md-4 control-label">'+ label +'</label> \
+            <div class="col-md-8 input-group-control"> \
+                <div class="input-group input-group-sm"> \
+                    <div class="input-group-control"> \
+                        <select class="form-control select2" name="'+ name +'" onchange="choose_contact(this)"> \
+                            <option value=""></option> \
+                            {% for contact in contacts %} \
+                                <option value="{{contact.id}}">{{contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{contact.id_value}})</option> \
+                            {% endfor %} \
+                        </select> \
+                        <div class="form-control-focus"> </div> \
                     </div> \
-                    <div class="form-control-focus"> </div> \
+                    <span class="input-group-btn btn-right"> \
+                        <a href="javascript:;" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank"> \
+                            <i class="fa fa-plus"></i> </a> \
+                        <a href="javascript:;" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;"> \
+                            <i class="fa fa-search"></i> \
+                        </a> \
+                    </span> \
                 </div> \
-            </div>'
+            </div> \
+           </div>'
     $(str).insertBefore($(obj).parent().parent().parent())
 
     $(".select2, .select2-multiple").select2({
@@ -589,11 +639,12 @@ function addDirector(obj){
         });
 }
 
-function removeDirector(obj){
+function removeContact(obj){
     $(obj).parent().parent().parent().prev().remove()
 }
 
 function changetype(obj){
+
     if($(obj).val() == "new"){
         $(".new_type").attr("style", "display: block")
     } else {
@@ -605,55 +656,23 @@ function changetype(obj){
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
             success: function(data) {
-              $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["json"])))
+              $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["json"]), '{{normal.additional_info}}'))
                 FormBuilder_tp.setMode(1)
 
-                $(".form_datetime").datetimepicker({
-                    autoclose: true,
-                    isRTL: App.isRTL(),
-                    format: "dd MM yyyy - hh:ii",
-                    pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
-                });
-
-                $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
-                // Workaround to fix datetimepicker position on window scroll
-                $( document ).scroll(function(){
-                    $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
-                });
+                initDateControl()
             }
         });
 
     }
 }
 
-function submitForm(){
-    console.log($("#defaultForm").serializeArray())
-    document.defaultForm.submit()
-}
-
 function saveAbove(obj){
-    var address = $("#address1").val() + " " + $("#address2").val() + " " + $("#town").val() + " " + $("#state").val() + " " + $("#country").val()
+    var address = $("#address1").val() + " " + $("#address2").val() + " " + $("#town").val() + " " + $("#postcode").val() + ", " + $("#state").val() + " " + $("." + $("#country").val()).html()
     $(".registered_office").html(address)
 }
 
 if (App.isAngularJsApp() === false) {
-    $(".form_datetime").datetimepicker({
-            autoclose: true,
-            isRTL: App.isRTL(),
-            format: "dd MM yyyy - hh:ii",
-            pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
-        });
-
-        $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
-        // Workaround to fix datetimepicker position on window scroll
-        $( document ).scroll(function(){
-            $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
-        });
-
-    $(".select2, .select2-multiple").select2({
-        placeholder: "",
-        width: null
-    });
+    initDateControl()
 
     if($("#type").val() != "")
         $.ajax({
@@ -662,26 +681,56 @@ if (App.isAngularJsApp() === false) {
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
             success: function(data) {
-                console.log(FormBuilder_tp.getCustomForm(JSON.parse(data["json"])))
-              $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["json"])))
+              $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["json"]), '{{normal.additional_info}}'))
                FormBuilder_tp.setMode(1)
-
-               $(".form_datetime").datetimepicker({
-                    autoclose: true,
-                    isRTL: App.isRTL(),
-                    format: "dd MM yyyy - hh:ii",
-                    pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
-                });
-
-                $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
-                // Workaround to fix datetimepicker position on window scroll
-                $( document ).scroll(function(){
-                    $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
-                });
+               initDateControl()
             }
         });
 
     checkValidation("#defaultForm", {})
+    initPhoneControl()
+    $("#phone_home").intlTelInput("setNumber", '{{phones|dict:"phone_home"}}');
+    $("#phone_office").intlTelInput("setNumber", '{{phones|dict:"phone_office"}}');
+    $("#phone_mobile").intlTelInput("setNumber", '{{phones|dict:"phone_mobile"}}');
+
+    $.ajax({
+        type: 'GET',
+        url: '{% url "states" %}'+'?country_code={{country}}'+'&state={{state}}',
+        success: function(data) {
+            $("#state").html(data)
+
+            $(".select2, .select2-multiple").select2({
+                placeholder: "",
+                width: null
+            });
+        }
+    });
+
+    $(".select2, .select2-multiple").select2({
+        placeholder: "",
+        width: null
+    });
+}
+
+function selCountry(obj){
+    $.ajax({
+        type: 'GET',
+        url: '{% url "states" %}'+'?country_code=' + $(obj).val()+'&state=',
+        success: function(data) {
+            $("#state").html(data)
+        }
+    });
+}
+
+function mailto(){
+    if($("#mail_preference").val() != ""){
+        window.open('mailto:'+$("#mail_preference").val(), '_blank');
+    }
+}
+function go_to(){
+    if($("#website").val() != ""){
+        window.open($("#website").val(), '_blank');
+    }
 }
 </script>
 {% endblock %}

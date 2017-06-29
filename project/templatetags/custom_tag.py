@@ -8,7 +8,7 @@ def dict(value, arg):
     try:
         return value[arg]
     except:
-        return
+        return ""
 
 @register.filter(name='get_title')
 def get_title(value):

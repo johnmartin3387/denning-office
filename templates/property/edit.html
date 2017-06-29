@@ -6,7 +6,7 @@
 
 {% endblock %}
 
-{% block title %} Property <button type="button" class="btn btn-primary edit-btn" style="float: right">Save</button> {% endblock %}
+{% block title %} Property {% endblock %}
 
 {% block extra_css %}
 <link href="{% static 'global/plugins/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet" type="text/css" />
@@ -18,31 +18,40 @@
 {% endblock %}
 {% block content %}
 <div class="row">
+    <form name="defaultForm" method="post" id="defaultForm" role="form" >
+    {% csrf_token %}
+    <input type="hidden" name="id" id="property_id" value="{{property.id|default_if_none:''}}">
+    <input type="hidden" name="custom_data" value="" class="custom_data">
+    <div class="row" style="margin: -50px 20px 10px 0px;">
+        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('property')">Edit Form</a> 
+
+        <a href="{% url 'property_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+    </div>
     <div class="col-md-4 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
         <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i> Property Description </div>
+                    Property Description </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
                         <div class="form-group form-md-line-input">
                             <div class="col-md-12">
                                 <div class="md-radio-inline">
                                     <div class="md-radio col-md-6">
-                                        <input type="radio" id="radio53" name="type" class="md-radiobtn" checked="">
+                                        <input type="radio" id="radio53" name="type" class="md-radiobtn" {% if property.type == 'strata' %}{% else %}checked{% endif %} value="landed" onclick="changeType()">
                                         <label for="radio53">
                                             <span></span>
                                             <span class="check"></span>
                                             <span class="box"></span> Landed Property </label>
                                     </div>
                                     <div class="md-radio col-md-6">
-                                        <input type="radio" id="radio54" name="type" class="md-radiobtn">
+                                        <input type="radio" id="radio54" name="type" class="md-radiobtn" onclick="changeType()" value="strata" {% if property.type == 'strata' %}checked{% endif %}>
                                         <label for="radio54">
                                             <span></span>
                                             <span class="check"></span>
@@ -54,17 +63,17 @@
                                 <div class="md-checkbox-inline">
                                 	
                                     <div class="md-checkbox col-md-12" style="margin-left:15%;">
-                                        <input type="checkbox" id="checkbox" name="indiviual" class="md-check">
-                                        <label for="checkbox">
+                                        <input type="checkbox" id="checkbox" name="individual" class="md-check title-check" onchange="changeIndividual(this)" {% if property.individual == True %}checked{% endif %}>
+                                        <label for="checkbox" class="issue-title">
                                             <span></span>
                                             <span class="check"></span>
-                                            <span class="box"></span> Individual Title Issued </label>
+                                            <span class="box "></span> Individual Title Issued </label>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
@@ -72,24 +81,24 @@
         <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i> Title Details </div>
+                    Title Details </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="title_type">Title Type</label>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="title_type" name="title_type" required>
+                                        <select class="form-control select2 title-issued" id="title-type" name="title_type_id" required>
+                                            <option value=""></option>
                                             {% for attr in attrs %}
                                                 {% if attr.type == 'Title Type' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.title_type_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -107,7 +116,7 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="title_no">Title No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="title_no" placeholder="Enter the title number." name="title_no">
+                                <input type="text" class="form-control title-issued" id="title_no" placeholder="Enter the title number." name="title_no" value="{{property.title_no|default_if_none:''}}" onblur="capital(this)" required>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -116,11 +125,12 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="lot_type" name="lot_type" required>
+                                        <select class="form-control select2 title-issued" id="lot-type" name="lot_type_id" required>
+                                            <option value=""></option>
                                             {% for attr in attrs %}
                                                 {% if attr.type == 'Lot Type' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.lot_type_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -137,35 +147,33 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="lot_no">Lot / PT No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="lot_no" placeholder="Enter Lot/PT Number." name="lot_no">
+                                <input type="text" class="form-control title-issued" id="lot_no" placeholder="Enter Lot/PT Number." name="lot_no" value="{{property.lot_no|default_if_none:''}}" onblur="capital(this)" required>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-error">
                             <div class="col-md-4">
                                 <select class="form-control" id="mukim" name="mukim">
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                    <option value="">Option 3</option>
-                                    <option value="">Option 4</option>
+                                    <option value="Mukim" {% if property.mukim.mukim == 'Mukim' %} selected {% endif %}>Mukim</option>
+                                    <option value="Bandar" {% if property.mukim.mukim == 'Bandar' %} selected {% endif %}>Bandar</option>
+                                    <option value="Penka" {% if property.mukim.mukim == 'Penka' %} selected {% endif %}>Penka</option>
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="mukim_val" name="mukim_val" required>
-                                            {% for attr in attrs %}
-                                                {% if attr.type == 'Mukim Value' %}
-                                                <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
-                                                {% endif %}
+                                        <select class="form-control select2" id="mukim_val" name="mukim_val_id" onchange="selMukim(this)" required>
+                                            <option value=""></option>
+                                            {% for mukim in mukims %}
+                                                <option value="{{mukim.id}}"
+                                                {% if mukim.id == property.mukim_val_id %} selected {% endif %}>{{mukim.mukim}}</option>
                                             {% endfor %}
                                         </select>
                                         <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Mukim Value');">
+                                        <a data-toggle="modal" href="{% url 'mukim_edit' %}" class="btn btn-xs blue" style="margin-left: 2px;">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -175,29 +183,29 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="daerah">Daerah</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="daerah" placeholder="Enter daerah" name="daerah">
+                                <input type="text" class="form-control" id="daerah" placeholder="Enter daerah" name="daerah" value="{{property.daerah|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="negeri">Negeri</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="negeri" placeholder="Enter negeri" name="negeri">
+                                <input type="text" class="form-control" id="negeri" placeholder="Enter negeri" name="negeri" value="{{property.negeri|default_if_none:''}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="area">Area</label>
                             <div class="col-md-4" style="padding-right: 2px;">
-                                <input type="number" class="form-control" id="area" placeholder="" name="area">
+                                <input type="number" class="form-control title-issued" id="area" placeholder="" name="area" value="{{property.area|default_if_none:0}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                             <div class="col-md-4" style="padding-left: 2px;">
-                                <select class="form-control" id="unit" name="area_unit">
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                    <option value="">Option 3</option>
-                                    <option value="">Option 4</option>
+                                <select class="form-control title-issued" id="unit" name="area_unit">
+                                    <option value="m2" {% if property.area_unit == 'm2' %}selected{% endif %}>m2</option>
+                                    <option value="sq. ft" {% if property.area_unit == 'sq. ft' %}selected{% endif %}>Sq. ft</option>
+                                    <option value="hecktares" {% if property.area_unit == 'hecktares' %}selected{% endif %}>Hectares</option>
+                                    <option value="acres" {% if property.area_unit == 'acres' %}selected{% endif %}>Acres</option>
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
@@ -207,11 +215,11 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="tenure" name="tenure" required>
+                                        <select class="form-control select2 title-issued" id="tenure" name="tenure_id">
                                             {% for attr in attrs %}
                                                 {% if attr.type == 'Tenure' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.tenure_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -229,29 +237,29 @@
                             <label class="col-md-4 control-label" for="lease_expiry">Lease Expiry Date</label>
                             
                             <div class="col-md-8 date form_datetime">
-                                <input type="text" id="lease_expiry" placeholder="Enter lease expiry date" name="lease_expiry" class="form-control date-set">
+                                <input type="text" id="lease_expiry" placeholder="Enter lease expiry date" name="lease_expiry_date" class="form-control date-set title-issued" value="{{propery.lease_expiry_date|date:'Y-m-d H:i'}}">
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="title_registration_date">Title Registration Date</label>
+                            <label class="col-md-4 control-label" for="title_registeration_date">Title Registration Date</label>
                             <div class="col-md-8 date form_datetime">
-                                <input type="text" id="title_registration_date" placeholder="Enter lease expiry date" name="title_registration_date" class="form-control date-set">
+                                <input type="text" id="title_registeration_date" placeholder="Enter lease expiry date" name="title_registeration_date" class="form-control date-set" value="{{propery.title_registeration_date|date:'Y-m-d H:i'}}">
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="interest">Restriction in Interest</label>
                             <div class="col-md-8 md-checkbox padding-checkbox">
-                                <input type="checkbox" id="interest" name="interest" class="md-check" onclick="Interest_enable(this)">
+                                <input type="checkbox" id="interest" name="interest" class="md-check" onclick="Interest_enable()" {% if property.interest == True %}checked{% endif %}>
                                 <label for="interest">
                                     <span></span>
                                     <span class="check"></span>
                                     <span class="box"></span></label>
                             </div>
                         </div>
-                        <!-- <div class="form-group form-md-line-input has-success" style="margin-top: 10px">
+                        <div class="form-group form-md-line-input has-success" style="margin-top: 10px">
                             <div class="col-md-4 md-checkbox-inline" style="margin-left: 10px">
                             <div class="md-checkbox">
-                                <input type="checkbox" id="buml_lot" name="buml_lot" class="md-check interest" disabled>
+                                <input type="checkbox" id="buml_lot" name="buml_lot" class="md-check interest" disabled {% if property.buml_lot == True %} checked {% endif %}>
                                 <label for="buml_lot">
                                     <span></span>
                                     <span class="check"></span>
@@ -260,33 +268,80 @@
                             </div>
                             <div class="col-md-7 md-checkbox-inline">
                             <div class="md-checkbox">
-                                <input type="checkbox" id="malay" name="malay" class="md-check interest" disabled>
+                                <input type="checkbox" id="malay" name="malay" class="md-check interest" disabled {% if property.malay == True %} checked {% endif %}>
                                 <label for="malay">
                                     <span></span>
                                     <span class="check"></span>
                                     <span class="box"></span> Malay Reserve Land </label>
                             </div>
                             </div>
-                        </div> -->
-
+                        </div> 
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="restriction_against">Restriction Against</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control interest" id="restriction_against" placeholder="Enter restriction against" name="restriction_against" disabled>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2 interest" id="restriction-against" name="restriction_against_id">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Restriction Against' %}
+                                                <option value="{{attr.id}}"
+                                                {% if property.restriction_against_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Restriction Against');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="authority">Approving Authority</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control interest" id="authority" placeholder="Enter approving authority" name="approving_authority" disabled>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2 interest" id="approving-authority" name="approving_authority_id">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Approving Authority' %}
+                                                <option value="{{attr.id}}"
+                                                {% if property.approving_authority_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Approving Authority');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="other_restriction">Other Restriction</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control interest" id="other_restriction" placeholder="Enter other restriction" name="other_restriction" disabled>
+                            <div class="col-md-8 input-group-control">
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-control">
+                                        <select class="form-control select2 interest" id="other-restriction" name="other_restriction_id">
+                                            {% for attr in attrs %}
+                                                {% if attr.type == 'Other Restriction' %}
+                                                <option value="{{attr.id}}"
+                                                {% if property.other_restriction_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
+                                    </div>
+                                    <span class="input-group-btn btn-right">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Other Restriction');">
+                                            <i class="fa fa-plus"></i> </a>
+                                    </span>
+                                </div>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -295,18 +350,18 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="tenure" name="tenure" required>
+                                        <select class="form-control select2 title-issued" id="category-of-land-use" name="category_land_use_id">
                                             {% for attr in attrs %}
-                                                {% if attr.type == 'Tenure' %}
+                                                {% if attr.type == 'Category of Land Use' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.category_land_use_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
                                         <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Tenure');">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Category of Land Use');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -318,11 +373,11 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="express_condition" name="express_condition" required>
+                                        <select class="form-control select2 title-issued" id="express-condition" name="express_condition_id">
                                             {% for attr in attrs %}
                                                 {% if attr.type == 'Express Condition' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.express_condition_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -341,11 +396,11 @@
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="building_type" name="building_type" required>
+                                        <select class="form-control select2" id="building-type" name="building_type_id">
                                             {% for attr in attrs %}
                                                 {% if attr.type == 'Building Type' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.building_type_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
@@ -360,70 +415,13 @@
                             </div>                            
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="age_building">Age of Building</label>
+                            <label class="col-md-4 control-label" for="building_age">Age of Building</label>
                             <div class="col-md-8">
-                                <input type="number" class="form-control" id="age_building" placeholder="Enter age of building" name="age_building">
+                                <input type="number" class="form-control" id="building_age" placeholder="Enter age of building" name="building_age" value="{{property.building_age|default_if_none:0}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
-        <!-- END SAMPLE FORM PORTLET-->
-    </div>
-    <div class="col-md-4 ">
-        <!-- BEGIN SAMPLE FORM PORTLET-->
-        <div class="portlet box purple ">
-            <div class="portlet-title">
-                <div class="caption">
-                    <i class="fa fa-gift"></i> Title Details (Cond.) </div>
-                <div class="tools">
-                    <a href="" class="collapse"> </a>
-                </div>
-            </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
-                    <div class="form-body">
-                        
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="postal_address">Postal Address</label>
-                            <div class="col-md-8">
-                                <textarea class="form-control" rows="3" name="postal_address"></textarea>
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-6 control-label" for="assess_rate">Assessment Rate(Half Year)</label>
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-addon">$</span>
-                                    <input type="number" class="form-control" placeholder="Price" name="assessment_rate">
-                                    <div class="form-control-focus"> </div>
-                                    <span class="input-group-addon">.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-6 control-label" for="annual_rent">Annual Quit Rent(1 Year)</label>
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-addon">$</span>
-                                    <input type="number" class="form-control" placeholder="Price" name="annual_quit_rent">
-                                    <div class="form-control-focus"> </div>
-                                    <span class="input-group-addon">.00</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="prev_title">Previous Title</label>
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="prev_title" placeholder="Enter previous title" name="previous_title">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
@@ -432,116 +430,186 @@
         <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i> Strata Title Details </div>
+                    Title Details (Cond.) </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
+                        
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="parcel_no">Parcel No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="parcel_no" placeholder="Enter parcel number" name="parcel_no">
+                            <label class="col-md-4 control-label" for="postal_address">Postal Address</label>
+                            <div class="col-md-8">
+                                <textarea class="form-control" rows="3" name="postal_address">{{property.postal_address|default_if_none:''}}</textarea>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="storey_no">Storey No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="storey_no" placeholder="Enter storey number" name="storey_no">
-                                <div class="form-control-focus"> </div>
+                            <label class="col-md-6 control-label" for="assess_rate">Assessment Rate(Half Year)</label>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">$</span>
+                                    <input type="number" class="form-control" placeholder="Price" name="assessment_rate" value="{{property.assessment_rate|default_if_none:0}}">
+                                    <div class="form-control-focus"> </div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="building_no">Building No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="building_no" placeholder="Enter building number" name="building_no">
-                                <div class="form-control-focus"> </div>
+                            <label class="col-md-6 control-label" for="annual_rent">Annual Quit Rent(1 Year)</label>
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon">$</span>
+                                    <input type="number" class="form-control" placeholder="Price" name="annual_quit_rent" value="{{property.annual_quit_rent|default_if_none:0}}">
+                                    <div class="form-control-focus"> </div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="access_parcel_no">Accessory Parcel No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="access_parcel_no" placeholder="Enter accessory parcel number" name="access_parcel_no">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="access_storey_no">Accessory Storey No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="access_storey_no" placeholder="Enter accessory storey number" name="access_storey_no">
-                                <div class="form-control-focus"> </div>
-                            </div>
-                        </div>
-                        <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="access_building_no">Accessory Building No</label>
-                            <div class="col-md-7">
-                                <input type="text" class="form-control" id="access_building_no" placeholder="Enter accessory building number" name="access_building_no">
+                            <label class="col-md-4 control-label" for="previous_title">Previous Title</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="previous_title" placeholder="Enter previous title" name="previous_title" value="{{property.previous_title|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                     </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
+
     </div>
     <div class="col-md-4 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
         <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i> Details of Unit / Parcel (as per Principal SPA) </div>
+                    Strata Title Details </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="parcel_no">Parcel No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="parcel_no" placeholder="Enter parcel number" name="parcel_no" value="{{property.parcel_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="storey_no">Storey No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="storey_no" placeholder="Enter storey number" name="storey_no" value="{{property.storey_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="building_no">Building No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="building_no" placeholder="Enter building number" name="building_no" value="{{property.building_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="access_parcel_no">Accessory Parcel No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="access_parcel_no" placeholder="Enter accessory parcel number" name="access_parcel_no" value="{{property.access_parcel_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="access_storey_no">Accessory Storey No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="access_storey_no" placeholder="Enter accessory storey number" name="access_storey_no" value="{{property.access_storey_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="access_building_no">Accessory Building No</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="access_building_no" placeholder="Enter accessory building number" name="access_building_no" value="{{property.access_building_no|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="access_building_no">Units of Shares</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="unit_of_share" placeholder="Enter unites of shares" name="unit_of_share" value="{{property.unit_of_share|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="total_share">Total Shares</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="total_share" placeholder="Enter total shares" name="total_share" value="{{property.total_share|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-5 control-label" for="floor_area">Floor Area</label>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control title-issued strata" id="floor_area" placeholder="Enter floor area" name="floor_area" value="{{property.floor_area|default_if_none:''}}" onblur="capital(this)">
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <!-- END SAMPLE FORM PORTLET-->
+
+        <!-- BEGIN SAMPLE FORM PORTLET-->
+        <div class="portlet box purple ">
+            <div class="portlet-title">
+                <div class="caption">
+                    Details of Unit / Parcel (as per Principal SPA) </div>
+                <div class="tools">
+                    <a href="" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
                         
                         <div class="form-group form-md-line-input has-success">
                             <div class="col-md-5">
-                                <select class="form-control" id="pacel_spa" name="pacel_spa">
-                                    <option value="">Option 1</option>
-                                    <option value="">Option 2</option>
-                                    <option value="">Option 3</option>
-                                    <option value="">Option 4</option>
+                                <select class="form-control" id="pacel_spa_no" name="pacel_spa_no">
+                                    <option value="Unit No." {% if propery.pacel_spa_no == 'Unit No.' %}selected{% endif %}>Unit No.</option>
+                                    <option value="Parcel No." {% if propery.pacel_spa_no == 'Parcel No.' %}selected{% endif %}>Parcel No.</option>
+                                    <option value="Sub Lot" {% if propery.pacel_spa_no == 'Sub Lot' %}selected{% endif %}>Sub Lot</option>
+                                    <option value="Plot No." {% if propery.pacel_spa_no == 'Plot No.' %}selected{% endif %}>Plot No.</option>
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="proj_name" placeholder="" name="proj_name">
+                                <input type="text" class="form-control" id="pacel_spa_value" placeholder="" name="pacel_spa_value" value="{{property.pacel_spa_value|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="story_no_spa">Storey No</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="story_no_spa" placeholder="" name="story_no_spa" disabled>
+                                <input type="text" class="form-control strata" id="story_no_spa" placeholder="" name="story_no_spa" value="{{property.story_no_spa|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="block_no">Building/Block No</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="block_no" placeholder="" name="block_no" disabled>
+                                <input type="text" class="form-control strata" id="block_no" placeholder="" name="block_no" value="{{property.block_no|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="apt_name">Apt/Condo Name</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="apt_name" placeholder="" name="apt_name" disabled>
+                                <input type="text" class="form-control strata" id="apt_name" placeholder="" name="apt_name" value="{{property.block_no|default_if_none:''}}" onblur="capital(this)">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="access_parcel_no_spa">Accessory Parcel No.</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="access_parcel_no_spa" placeholder="" name="access_parcel_no_spa" disabled>
+                                <input type="text" class="form-control strata" id="access_parcel_no_spa" placeholder="" name="access_parcel_no_spa" onblur="capital(this)" value="{{property.access_parcel_no_spa|default_if_none:''}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -551,18 +619,18 @@
                             <div class="col-md-7 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control select2" id="building_description" name="building_description" required>
+                                        <select class="form-control select2" id="building_description" name="building_description_id">
                                             {% for attr in attrs %}
-                                                {% if attr.type == 'Building Type' %}
+                                                {% if attr.type == 'Building Description' %}
                                                 <option value="{{attr.id}}"
-                                                {% if contact.category_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
+                                                {% if property.building_description_id == attr.id %} selected {% endif %}>{{attr.value}}</option>
                                                 {% endif %}
                                             {% endfor %}
                                         </select>
                                         <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Building Type');">
+                                        <a data-toggle="modal" href="#basic" class="btn btn-xs blue" style="margin-left: 2px;" onclick="addNew('Building Description');">
                                             <i class="fa fa-plus"></i> </a>
                                     </span>
                                 </div>
@@ -574,62 +642,66 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="land_use">Unit Area</label>
                             <div class="col-md-3" style="padding-right: 2px;">
-                                <input type="number" class="form-control" placeholder="" name="">
+                                <input type="number" class="form-control" placeholder="" name="spa_area" value="{{property.spa_area|default_if_none:''}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                             <div class="col-md-4" style="padding-left: 2px;">
-                                <select class="form-control" id="land_use" name="land_use">
-                                    <option value="Option 1">Option 1</option>
-                                    <option value="Option 2">Option 2</option>
-                                    <option value="Option 3">Option 3</option>
-                                    <option value="Option 4">Option 4</option>
+                                <select class="form-control" id="spa_area_unit" name="spa_area_unit">
+                                    <option value="m2" {% if property.spa_area_unit == 'm2' %}selected{% endif %}>m2</option>
+                                    <option value="sq. ft" {% if property.spa_area_unit == 'sq. ft' %}selected{% endif %}>Sq. ft</option>
+                                    <option value="hecktares" {% if property.spa_area_unit == 'hecktares' %}selected{% endif %}>Hectares</option>
+                                    <option value="acres" {% if property.spa_area_unit == 'acres' %}selected{% endif %}>Acres</option>
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
 
                     </div>
-                </form>
             </div>
         </div>
         <!-- END SAMPLE FORM PORTLET-->
+
         <!-- BEGIN SAMPLE FORM PORTLET-->
-        <!-- <div class="portlet box purple ">
+        <div class="portlet box purple ">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i> Project </div>
+                    Project </div>
                 <div class="tools">
                     <a href="" class="collapse"> </a>
+                    <a href="javascript:;" class="edit-form edit-tool" onclick="FormBuilder_tp.appendForm(this, 'col-md-6')"> </a>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <form role="form" class="form-horizontal">
+            <div class="portlet-body form form-horizontal">
                     <div class="form-body">
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="proj_code">Project Code(optional)</label>
+                            <label class="col-md-5 control-label" for="land_use">Project Code (optional)</label>
                             <div class="col-md-7 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control" id="proj_code" name="proj_code">
-		                                    <option value="">Option 1</option>
-		                                    <option value="">Option 2</option>
-		                                    <option value="">Option 3</option>
-		                                    <option value="">Option 4</option>
-		                                </select>
+                                        <select class="form-control select2" id="project_id" name="project" onchange="selProject(this)">
+                                            <option value=""> </option>
+                                            {% for project in projects %}
+                                                <option value="{{project.id}}"
+                                                {% if property.project_id == project.id %} selected {% endif %}>{{project.name}} </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-		                                <a href="javascript:;" class="btn btn-icon-only blue">
-		                                    <i class="fa fa-search"></i>
-		                                </a>
+                                        <a href="{%url 'project_edit'%}" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank">
+                                            <i class="fa fa-plus"></i> </a>
+                                        <a href="javascript:;" class="btn btn-xs purple project-link" style="margin-left: 2px;" target="_blank">
+                                            <i class="fa fa-search"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
-                            </div>
+                            </div> 
+                            
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="proj_name">Project Name</label>
+                            <label class="col-md-5 control-label" for="project_name">Project Name</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="proj_name" placeholder="Enter project name" name="proj_name">
+                                <input type="text" class="form-control" id="project_name" placeholder="" disabled onblur="capital(this)" value="{{property.project.name|default_if_none:''}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -638,69 +710,52 @@
                             <div class="col-md-7 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control" id="developer" name="developer">
-		                                    <option value="">Option 1</option>
-		                                    <option value="">Option 2</option>
-		                                    <option value="">Option 3</option>
-		                                    <option value="">Option 4</option>
-		                                </select>
+                                        <input type="text" class="form-control" id="developer" placeholder="" disabled onblur="capital(this)" value="{{property.project.developer|default_if_none:''}}">
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-		                                <a href="javascript:;" class="btn btn-icon-only blue">
-		                                    <i class="fa fa-search"></i>
-		                                </a>
+                                        <a href="javascript:;" class="btn btn-xs purple developer-link" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
-                            </div>
+                            </div> 
+                            
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-5 control-label" for="proprietor">Proprietor</label>
                             <div class="col-md-7 input-group-control">
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-control">
-                                        <select class="form-control" id="proprietor" name="proprietor">
-		                                    <option value="">Option 1</option>
-		                                    <option value="">Option 2</option>
-		                                    <option value="">Option 3</option>
-		                                    <option value="">Option 4</option>
-		                                </select>
+                                        <input type="text" class="form-control" id="proprietor" placeholder="" disabled onblur="capital(this)" value="{{property.project.proprietor|default_if_none:''}}">
+                                        <div class="form-control-focus"> </div>
                                     </div>
                                     <span class="input-group-btn btn-right">
-		                                <a href="javascript:;" class="btn btn-icon-only blue">
-		                                    <i class="fa fa-search"></i>
-		                                </a>
+                                        <a href="javascript:;" class="btn btn-xs purple proprietor-link" style="margin-left: 2px;">
+                                            <i class="fa fa-search"></i> </a>
                                     </span>
                                 </div>
                                 <div class="form-control-focus"> </div>
-                            </div>
+                            </div> 
+                            
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-5 control-label" for="bm_title">Block/Mater Title</label>
-                            <div class="col-md-7 input-group-control">
-                                <div class="input-group input-group-sm">
-                                    <div class="input-group-control">
-                                        <select class="form-control" id="bm_title" name="bm_title">
-		                                    <option value="">Option 1</option>
-		                                    <option value="">Option 2</option>
-		                                    <option value="">Option 3</option>
-		                                    <option value="">Option 4</option>
-		                                </select>
-                                    </div>
-                                    <span class="input-group-btn btn-right">
-		                                <a href="javascript:;" class="btn btn-icon-only blue">
-		                                    <i class="fa fa-search"></i>
-		                                </a>
-                                    </span>
-                                </div>
+                            <label class="col-md-5 control-label" for="master_title">Block/Master Title</label>
+                            <div class="col-md-7">
+                                <textarea class="form-control master_title" name="master_title">{{property.master_title|default_if_none:''}}</textarea>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div> 
-        </div> -->
+            </div>
+        </div>
         <!-- END SAMPLE FORM PORTLET-->
+    </div>
+    </form>
+    <div class="col-md-4 ">
+        <form name="customForm" method="post" id="customForm" class="custom-form" role="form">
+
+        </form>
     </div>
 </div>
 
@@ -716,7 +771,7 @@
                     <div class="form-group form-md-line-input has-success">
                         <label class="col-md-4 control-label" for="type">Value</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value">
+                            <input type="text" class="form-control" id="list-value" placeholder="" name="list-value" onblur="capital(this)">
                             <input type="hidden" id="list-type" name="list-type">
                             <div class="form-control-focus"> </div>
                         </div>
@@ -741,39 +796,95 @@
 <script src="{% static 'global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js' %}" type="text/javascript"></script>
-
+<script src="{% static 'global/plugins/jquery-validation/js/jquery.validate.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'global/plugins/select2/js/select2.full.min.js' %}" type="text/javascript"></script>
+
+
+<script src="{% static 'formbuilder/js/jquery-ui.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-builder.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/form-render.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
 <script type="text/javascript">
 
 if (App.isAngularJsApp() === false) {
-    if (jQuery().datepicker) {
-	    $(".form_datetime").datetimepicker({
-            autoclose: true,
-            isRTL: App.isRTL(),
-            format: "dd MM yyyy - hh:ii",
-            pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
-        });
 
-        $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
-        // Workaround to fix datetimepicker position on window scroll
-        $( document ).scroll(function(){
-            $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
-        });
+    /*$('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+    // Workaround to fix datetimepicker position on window scroll
+    $( document ).scroll(function(){
+        $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
+    });*/
 
-        $(".select2, .select2-multiple").select2({
-            placeholder: "",
-            width: null
-        });
-	}
+    $(".select2, .select2-multiple").select2({
+        placeholder: "",
+        width: null
+    });
+
+    changeType()
+    Interest_enable()
+    checkValidation("#defaultForm", {})
+
+    json_str = '{{template.json}}'
+    json_str = json_str.replace(/&quot;/g, "\"")
+    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(json_str), '{{property.additional_info}}'))
+   FormBuilder_tp.setMode(1)
+   initDateControl()
+
 }
 
-function Interest_enable(obj){
-	if(obj.checked){
+function Interest_enable(){
+	if($("#interest").is(':checked')){
 		$(".interest").attr("disabled", false);
 	}else{
 		$(".interest").attr("disabled", true);
 	}
+}
+
+function changeType(){
+    if($(".md-radiobtn").filter(':checked').val() == "landed"){
+        $(".issue-title").html('<span></span> \
+                    <span class="check"></span> \
+                    <span class="box "></span> Individual Title Issued')
+        $(".strata").attr("disabled", true)
+    } else {
+        $(".issue-title").html('<span></span> \
+                    <span class="check"></span> \
+                    <span class="box "></span> Strata Title Issued')
+        $(".strata").attr("disabled", false)
+    }
+}
+
+function changeIndividual(obj){
+    if($(obj).is(':checked')){
+        $(".title-issued").attr("disabled", false)
+    } else {
+        $(".title-issued").attr("disabled", true)
+    }
+}
+
+function selProject(obj){
+    {% for project in projects %}
+        if($(obj).val() == '{{project.id}}'){
+            $(".project-link").attr("href", "{%url 'project_edit'%}?id={{project.id}}")
+            $("#project_name").val('{{project.name}}')
+            $("#developer").val('{{project.developer.contact.name}}')
+            var developer_id = '{{project.developer.contact.id}}'
+            if(developer_id != "")
+                $(".developer-link").attr("href", "{%url 'contact_edit'%}?id={{project.developer.contact.id}}")
+            $("#proprietor").val('{{project.proprietor.contact.name}}')
+            var proprietor_id = '{{project.proprietor.contact.id}}'
+            if(proprietor_id != "")
+                $(".proprietor-link").attr("href", "{%url 'contact_edit'%}?id={{project.proprietor.contact.id}}")
+        }
+    {% endfor %}
+}
+
+function selMukim(obj){
+    {% for mukim in mukims %}
+        if($(obj).val() == '{{mukim.id}}'){
+            $("#daerah").val('{{mukim.district}}')
+            $("#negeri").val('{{mukim.state}}')
+        }
+    {% endfor %}
 }
 
 </script>

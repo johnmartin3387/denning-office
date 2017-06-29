@@ -59,9 +59,9 @@
     display: none;
 }
 
-.calendar.right{
+/*.calendar.right{
     display: none !important;
-}
+}*/
 
 .autocomplete-field .field-options{
     display: none !important;
@@ -85,4 +85,12 @@
 
 label.error{
     display: none !important;
+}
+
+.select2-dropdown{
+    width: 331px !important;
+}
+
+.country-list{
+    z-index: 10 !important;
 }
