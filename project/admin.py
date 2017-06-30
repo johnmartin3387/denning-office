@@ -64,3 +64,10 @@ class MatterAdmin(admin.ModelAdmin):
 
 admin.site.register(Matter, MatterAdmin)
 
+class GroupAdmin(admin.ModelAdmin):
+    model = Group
+    list_display = ['id']
+    list_display_links = ['id']
+
+admin.site.register(Group, GroupAdmin)
+

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_tag %}
+
+{% block meta_description %}
+
+{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css' %}" />
+<link href="{% static 'global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css' %}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.common-material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.min.css" />
+<link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.mobile.min.css" />
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <span class="caption-subject bold font-dark">Groups</span>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <!--BEGIN TABS-->
+                <div data-always-visible="1" data-rail-visible="0">
+                    <ul class="feeds">
+                        {% for group in groups %}
+                        <li>
+                            <a href="javascript:;" onclick="selGroup(this)" class="group">
+                                <div class="col1">
+                                    <div class="cont">
+                                        <div class="cont-col2">
+                                            <div class="desc"> {{ group.name }} </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 col-sm-12">
+        <div class="portlet light bordered">
+            <div class="portlet-title">
+                <div class="caption">
+                    <span class="caption-subject bold font-dark">Privileges</span>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="demo-section k-content">
+                    <div>
+                        <div id="treeview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{% static 'global/scripts/datatable.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/datatables/datatables.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js' %}" type="text/javascript"></script>
+<script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
+
+<script src="https://kendo.cdn.telerik.com/2017.2.621/js/kendo.all.min.js"></script>
+
+<script type="text/javascript">
+
+var data = []
+
+if (App.isAngularJsApp() === false) {
+    jQuery(document).ready(function() {
+
+    });
+}
+
+function selGroup(obj){
+    $('.group').each(function(index,item){
+        $(item).attr("style", "")
+    });
+    $(obj).attr("style", "color: red")
+
+    {% for group in groups %}
+
+    {% endfor %}
+}
+
+$("#treeview").kendoTreeView({
+    checkboxes: {
+        checkChildren: true
+    },
+
+    check: onCheck,
+
+    dataSource: [{
+        id: "matter", text: "Matter", expanded: false, items: [
+            { id: "matter_create", text: "Create", value: "" },
+            { id: "matter_update", text: "Update" },
+            { id: "matter_remove", text: "Remove" },
+        ]},
+        {id: "mattercode", text: "Matter Code", expanded: false, items: [
+            { id: "mattercode_create", text: "Create" },
+            { id: "mattercode_update", text: "Update" },
+            { id: "mattercode_remove", text: "Remove" },
+        ]},
+        {id: "contact", text: "Contact", expanded: false, items: [
+            { id: "contact_create", text: "Create" },
+            { id: "contact_update", text: "Update" },
+            { id: "contact_remove", text: "Remove" },
+        ]},
+        {id: "property", text: "Property", expanded: false, items: [
+            { id: "contact_create", text: "Create" },
+            { id: "contact_update", text: "Update" },
+            { id: "contact_remove", text: "Remove" },
+        ]},
+        {id: "staff", text: "Staff", expanded: false, items: [
+            { id: "staff_create", text: "Create" },
+            { id: "staff_update", text: "Update" },
+            { id: "staff_remove", text: "Remove" },
+        ]},
+    ]
+});
+
+// function that gathers IDs of checked nodes
+function checkedNodeIds(nodes, checkedNodes) {
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].checked) {
+            checkedNodes.push(nodes[i].id);
+        }
+
+        if (nodes[i].hasChildren) {
+            checkedNodeIds(nodes[i].children.view(), checkedNodes);
+        }
+    }
+}
+
+// show checked node IDs on datasource change
+function onCheck() {
+    var checkedNodes = [],
+        treeView = $("#treeview").data("kendoTreeView"),
+        message;
+
+    checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+    for(var i=0; i<checkedNodes.length; i++){
+
+    }
+    if (checkedNodes.length > 0) {
+        message = checkedNodes.join(",");
+    } else {
+        message = "";
+    }
+
+    
+}
+
+</script>
+{% endblock %}

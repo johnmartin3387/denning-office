@@ -20,7 +20,7 @@
 <div class="row">
     <form name="defaultForm" method="post" id="defaultForm" role="form" >
     {% csrf_token %}
-    <input type="hidden" name="id" id="matter_code_id" value="{{matter_code.id}}">
+    <input type="hidden" name="id" id="matter_code_id" value="{{matter.id}}">
     <input type="hidden" name="additional_info" id="additional_info" value="{{matter_code.additional_info}}">
     <input type="hidden" name="custom_data" value="" class="custom_data">
     <div class="row" style="margin: -50px 20px 10px 0px;">
@@ -44,7 +44,8 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-3 control-label" for="primary_client"> File Number <span class="required" aria-required="true" > * </span></label>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" id="file_number" placeholder="" name="file_number" required value="{{matter.file_number}}" disabled>
+                                <input type="hidden" class="form-control" placeholder="" name="file_number" value="{{matter.file_number}}">
+                                <input type="text" class="form-control" id="file_number" placeholder="" required value="{{matter.file_number}}" disabled>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -393,7 +394,7 @@ if (App.isAngularJsApp() === false) {
             contentType: 'application/json; charset=UTF-8',
             success: function(data) {
                 try {
-                    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["additional_info"])))
+                    $(".custom-form").html(FormBuilder_tp.getCustomForm(JSON.parse(data["additional_info"]), '{{matter.additional_info}}'))
                     FormBuilder_tp.setMode(1)
                 }
                 catch(err) {
@@ -433,6 +434,42 @@ function selMatterCode(obj){
         });
 
     }
+}
+
+function addContact(obj, label, name){
+    str = '<div class="form-group form-md-line-input has-success"> \
+            <label class="col-md-4 control-label">'+ label +'</label> \
+            <div class="col-md-8 input-group-control"> \
+                <div class="input-group input-group-sm"> \
+                    <div class="input-group-control"> \
+                        <select class="form-control select2" name="'+ name +'" onchange="choose_contact(this)"> \
+                            <option value=""></option> \
+                            {% for contact in contacts %} \
+                                <option value="{{contact.id}}">{{contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{contact.id_value}})</option> \
+                            {% endfor %} \
+                        </select> \
+                        <div class="form-control-focus"> </div> \
+                    </div> \
+                    <span class="input-group-btn btn-right"> \
+                        <a href="/contact/update" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank"> \
+                            <i class="fa fa-plus"></i> </a> \
+                        <a href="javascript:;" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;"> \
+                            <i class="fa fa-search"></i> \
+                        </a> \
+                    </span> \
+                </div> \
+            </div> \
+           </div>'
+    $(str).insertBefore($(obj).parent().parent().parent())
+
+    $(".select2, .select2-multiple").select2({
+            placeholder: "",
+            width: null
+        });
+}
+
+function removeContact(obj){
+    $(obj).parent().parent().parent().prev().remove()
 }
 </script>
 

@@ -16,6 +16,58 @@ import md5
 
 import random
 
+# Login Required decorator
+def login_required():
+    def login_decorator(function):
+        @wraps(function)
+        def wrapped_function(request):
+
+            # if a user is not authorized, redirect to login page
+            if 'user' not in request.session or request.session['user'] is None:
+                return redirect("/")
+            # otherwise, go on the request
+            else:
+                return function(request)
+
+        return wrapped_function
+
+    return login_decorator
+
+def login(request):
+    error = 'none'
+    request.session['user'] = None
+
+    if 'username' in request.POST:
+
+        # get username and password from request.
+        username = request.POST['username']
+        password = request.POST['password']
+
+        login_staff = Staff.objects.filter(login_id=username, password=md5.new(request.POST['password']).hexdigest())
+        # check whether the user is in database or not
+        if len(login_staff):
+            request.session['user'] = {
+                # "id": user[0].id,
+                "username": username, #user[0].email,
+                "role": "admin"
+            }
+
+            return redirect("/matter/list")
+
+        else:
+            error = 'block'
+
+    return render_to_response('login.html', {'error':error}, context_instance=RequestContext(request))
+
+def logout(request):
+    request.session['user'] = None
+    return redirect("/")
+
+def privilege_settings(request):
+    groups = Group.objects.all()
+    return render_to_response('privilege/settings.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def property_update(request):
     projects = Project.objects.all()
     property = Property()
@@ -80,11 +132,14 @@ def property_update(request):
         property = Property.objects.get(pk=request.GET["id"])
 
     return render_to_response('property/edit.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def property_list(request):
     properties = Property.objects.all()
 
     return render_to_response('property/list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def property_remove(request):
     try:
         Property.objects.get(pk=request.GET["id"]).delete()
@@ -94,6 +149,7 @@ def property_remove(request):
     properties = Property.objects.all()
     return render_to_response('property/_list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def matterCode_update(request):
     matter_codes = Matter_Code.objects.all()
     attrs = Attribute.objects.all()
@@ -119,9 +175,13 @@ def matterCode_update(request):
         matter_code = Matter_Code.objects.get(pk=request.GET["id"])
 
     return render_to_response('matter_code/edit.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def matterCode_list(request):
     matter_codes = Matter_Code.objects.all()
     return render_to_response('matter_code/list.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def matterCode_remove(request):
     try:
         Matter_Code.objects.get(pk=request.GET["id"]).delete()
@@ -131,7 +191,7 @@ def matterCode_remove(request):
     matter_codes = Matter_Code.objects.all()
     return render_to_response('matter_code/_list.html', locals(), context_instance=RequestContext(request))
 
-
+# @login_required()
 def contact_update(request):
     templates = Contact_Template.objects.all().exclude(type="template_property_denning")
     attrs = Attribute.objects.all()
@@ -214,10 +274,12 @@ def contact_update(request):
 
     return render_to_response('contact/edit.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def contact_list(request):
     contacts = Contact.objects.all().exclude(type="staff")
     return render_to_response('contact/list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def contact_remove(request):
     contact = Contact.objects.get(pk=request.GET["id"])
     Normal.objects.filter(contact=contact).delete()
@@ -229,7 +291,7 @@ def contact_remove(request):
     contacts = Contact.objects.all().exclude(type="staff")
     return render_to_response('contact/_list.html', locals(), context_instance=RequestContext(request))
 
-
+# @login_required()
 def matter_update(request):
     matter = Matter()
     contacts = Staff.objects.all()
@@ -247,12 +309,15 @@ def matter_update(request):
         matter = Matter.objects.get(pk=request.GET["id"])
 
     if request.POST:
+        print request.POST
+
         data = getDict(request.POST, ["file_number", "primary_client_id", 
             "file_number2", "partner_in_charge_id", "turnaround", "la_in_charge_id",
             "status_id", "clerk_in_charge_id", "related_id", "matter_code_id",
-            "pocket_location", "physical_location", "box_location", "additional_info"])
+            "pocket_location", "physical_location", "box_location"])
 
         matter = Matter(**data)
+
         if request.POST["id"] != 'None' and \
                 request.POST["id"] != "":
             matter.id = request.POST["id"]
@@ -260,25 +325,30 @@ def matter_update(request):
         matter.open_date = None if request.POST['open_date'] == "" else request.POST['open_date']
         matter.close_date = None if request.POST['close_date'] == "" else request.POST['close_date']
         matter.turnaround = 0 if request.POST['turnaround'] == "" else request.POST['turnaround']
-        
+        matter.additional_info = request.POST['custom_data']
+
         matter.save()
         return redirect("/matter/list")
 
     matters = Matter.objects.all().exclude(file_number=matter.file_number)
     return render_to_response('matter/edit.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def matter_list(request):
     matters = Matter.objects.all().order_by("-open_date")
     return render_to_response('matter/list.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def matter_remove(request):
     try:
         Matter.objects.get(pk=request.GET["id"]).delete()
     except:
         pass
 
-    matters = Project.objects.all()
+    matters = Matter.objects.all()
     return render_to_response('matter/_list.html', locals(), context_instance=RequestContext(request))
 
-
+# @login_required()
 def staff_update(request):
     contact = Contact()
     staff = Staff()
@@ -360,6 +430,8 @@ def staff_update(request):
         return redirect("/staff/list")
 
     return render_to_response('staff/edit.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def staff_list(request):
     staffs = Contact.objects.filter(type="staff")
     details = []
@@ -368,6 +440,7 @@ def staff_list(request):
 
     return render_to_response('staff/list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def staff_remove(request):
     contact = Contact.objects.get(pk=request.GET["id"])
     Staff.objects.filter(contact=contact).delete()
@@ -383,6 +456,7 @@ def staff_remove(request):
 
     return render_to_response('staff/_list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def states(request):
     res = ""
     if "country_code" in request.GET:
@@ -403,6 +477,7 @@ def states(request):
             res += "<option value=\"%s\" %s>%s</option>" % (state, selected, state)
 
     return HttpResponse(res)
+
 
 def getDict(seed, keys):
     temp = dict()
@@ -432,6 +507,7 @@ def getIP():
     location = geolocator.geocode("Jalan Desa Utama")
     print(location.raw)
 
+# @login_required()
 def project_update(request):
     project = Project()
     attrs = Attribute.objects.all()
@@ -460,15 +536,19 @@ def project_update(request):
 
     return render_to_response('project/edit.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def project_list(request):
     projects = Project.objects.all()
 
     return render_to_response('project/list.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def project_remove(request):
     Project.objects.get(pk=request.GET["id"]).delete()
     projects = Project.objects.all()
     return render_to_response('project/_list.html', locals(), context_instance=RequestContext(request))
 
+# @login_required()
 def property_template(request):
     template = Contact_Template.objects.get(type="template_property_denning")
     template.json = request.GET["json"]
@@ -476,6 +556,7 @@ def property_template(request):
 
     return HttpResponse(str(template.id))
 
+# @login_required()
 def mukim_update(request):
     mukim = Mukim()
     if "id" in request.GET:
@@ -492,9 +573,13 @@ def mukim_update(request):
         return redirect("/mukim/list")
 
     return render_to_response('mukim/edit.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def mukim_list(request):
     mukims = Mukim.objects.all()
     return render_to_response('mukim/list.html', locals(), context_instance=RequestContext(request))
+
+# @login_required()
 def mukim_remove(request):
     Mukim.objects.get(pk=request.GET['id']).delete()
     return render_to_response('mukim/_list.html', locals(), context_instance=RequestContext(request))

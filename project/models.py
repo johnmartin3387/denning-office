@@ -66,7 +66,7 @@ class Phone(models.Model):
     def __unicode__(self):
         return "%s" % self.phone
 
-class Privilege(models.Model):
+'''class Privilege(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     parent = models.ForeignKey('self', blank=True, null=True)
 
@@ -74,11 +74,12 @@ class Privilege(models.Model):
         db_table = 'Privilege'
 
     def __unicode__(self):
-        return "%s" % self.name
+        return "%s" % self.name'''
 
 class Group(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    parent = models.ForeignKey('self', blank=True, null=True)
+    # parent = models.ForeignKey('self', blank=True, null=True)
+    privilege_json = models.TextField(null=True, blank=True)
 
     class Meta:
         db_table = 'Group'
@@ -86,12 +87,12 @@ class Group(models.Model):
     def __unicode__(self):
         return "%s" % self.name
 
-class Grant(models.Model):
+'''class Grant(models.Model):
     group = models.ForeignKey('Group', blank=True, null=True)
     privilege = models.ForeignKey('Privilege', blank=True, null=True)
 
     class Meta:
-        db_table = 'Grant'
+        db_table = 'Grant'''
 
 class Staff(models.Model):
     contact = models.ForeignKey('Contact', blank=True, null=True)
@@ -125,7 +126,7 @@ class Staff(models.Model):
 
 class Normal(models.Model):
     contact = models.ForeignKey('Contact', blank=True, null=True)
-    privilege = models.ForeignKey('Privilege', blank=True, null=True)
+    # privilege = models.ForeignKey('Privilege', blank=True, null=True)
     old_ic = models.CharField(max_length=255, blank=True, null=True)
     additional_info = models.TextField(blank=True, null=True)
 
@@ -347,3 +348,4 @@ class Property(models.Model):
     def __unicode__(self):
         return "%s" % self.name
 
+    

@@ -887,5 +887,41 @@ function selMukim(obj){
     {% endfor %}
 }
 
+function addContact(obj, label, name){
+    str = '<div class="form-group form-md-line-input has-success"> \
+            <label class="col-md-4 control-label">'+ label +'</label> \
+            <div class="col-md-8 input-group-control"> \
+                <div class="input-group input-group-sm"> \
+                    <div class="input-group-control"> \
+                        <select class="form-control select2" name="'+ name +'" onchange="choose_contact(this)"> \
+                            <option value=""></option> \
+                            {% for contact in contacts %} \
+                                <option value="{{contact.id}}">{{contact.name}} &nbsp;&nbsp;&nbsp;&nbsp; ({{contact.id_value}})</option> \
+                            {% endfor %} \
+                        </select> \
+                        <div class="form-control-focus"> </div> \
+                    </div> \
+                    <span class="input-group-btn btn-right"> \
+                        <a href="/contact/update" class="btn btn-xs blue" style="margin-left: 2px;" target="_blank"> \
+                            <i class="fa fa-plus"></i> </a> \
+                        <a href="javascript:;" class="btn btn-icon-only purple" target="_blank" style="margin-left: 2px;"> \
+                            <i class="fa fa-search"></i> \
+                        </a> \
+                    </span> \
+                </div> \
+            </div> \
+           </div>'
+    $(str).insertBefore($(obj).parent().parent().parent())
+
+    $(".select2, .select2-multiple").select2({
+            placeholder: "",
+            width: null
+        });
+}
+
+function removeContact(obj){
+    $(obj).parent().parent().parent().prev().remove()
+}
+
 </script>
 {% endblock %}

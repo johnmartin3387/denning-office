@@ -191,7 +191,7 @@
                                     <i class="fa fa-angle-down"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
-                                    <li>
+                                    <!-- <li>
                                         <a href="page_user_profile_1.html">
                                             <i class="icon-user"></i> My Profile </a>
                                     </li>
@@ -219,7 +219,12 @@
                                     <li>
                                         <a href="page_user_login_1.html">
                                             <i class="icon-key"></i> Log Out </a>
+                                    </li>-->
+                                    <li>
+                                        <a href="{% url 'privilege_settings' %}">
+                                            <i class="icon-user"></i> My Profile </a>
                                     </li>
+                                    <li class="divider"> </li>
                                 </ul>
                             </li>
                             <!-- END USER LOGIN DROPDOWN -->

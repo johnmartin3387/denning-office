@@ -31,5 +31,9 @@ urlpatterns = [
     url(r'mukim/list$', views.mukim_list, name="mukim_list"),
     url(r'mukim/remove$', views.mukim_remove, name="mukim_remove"),
 
-    url(r'states$', views.states, name="states")
+    url(r'states$', views.states, name="states"),
+
+    url(r'privilege_settings$', views.privilege_settings, name="privilege_settings"),
+    url(r'login$', views.login, name="login"),
+
 ]
