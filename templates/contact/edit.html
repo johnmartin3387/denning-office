@@ -29,9 +29,13 @@
     <input type="hidden" id="phone_office_val" name="phone_office" value="">
     <input type="hidden" id="phone_mobile_val" name="phone_mobile" value="">
     <div class="row" style="margin: -50px 20px 10px 0px;">
-        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('contact')">Edit Form</a> 
+        {% if request.session.user.group == 'Super Administrator' %}
+        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('contact')">Edit Form</a>
+        {% endif %} 
         <a href="{% url 'contact_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        {% if auth|dict:'update' == True %}
         <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        {% endif %}
     </div>
     <div class="col-md-4 ">
         <div class="portlet box purple ">
@@ -53,7 +57,7 @@
                                     {% for template in templates %}
                                     <option value="{{ template.id }}" {% if template.id == normal.template.id %} selected {% endif %}>{{ template.type }}</option>
                                     {% endfor %}
-                                    <option class="edit-tool" value="new">New</option>
+                                    <option class="edit-tool" value="new">Add New Type</option>
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
@@ -131,18 +135,17 @@
                             <label class="col-md-4 control-label" for="citizenship">Citizenship</label>
                             <div class="col-md-8">
                                 <select class="form-control" id="citizenship" name="citizenship">
-                                    <option value="Option 1">Option 1</option>
-                                    <option value="Option 2">Option 2</option>
-                                    <option value="Option 3">Option 3</option>
-                                    <option value="Option 4">Option 4</option>
+                                    {% for item in countries %}
+                                    <option value="{{item.alpha_2}}" class="{{item.alpha_2}}" {% if item.alpha_2 == country %} selected {% endif %}>{{item.name}}</option>
+                                    {% endfor %}
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="birth">Date of Birth</label>
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" class="form-control date-set" id="birth" placeholder="Enter birthday." name="birth">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control date-set date-picker" id="birth" placeholder="Enter birthday." name="birth">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -687,7 +690,7 @@ if (App.isAngularJsApp() === false) {
             }
         });
 
-    checkValidation("#defaultForm", {})
+    checkValidation("#defaultForm")
     initPhoneControl()
     $("#phone_home").intlTelInput("setNumber", '{{phones|dict:"phone_home"}}');
     $("#phone_office").intlTelInput("setNumber", '{{phones|dict:"phone_office"}}');

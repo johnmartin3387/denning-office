@@ -208,4 +208,13 @@ CURRENCY = {
              "CHF": {"name": "CHF", "currency_rate": 1.03, "currency": "Fr"},
           }
 
+PRIVILEGE_SETTING = ["matter", "mattercode", "contact", "property", "staff"]
 
+DEFAULT_FROM_EMAIL = 'johnmartin3387@gmail.com'
+
+EMAIL_HOST = 'smtp.googlemail.com'
+EMAIL_PORT = '465'
+EMAIL_HOST_USER = 'johnmartin3387@gmail.com'
+EMAIL_HOST_PASSWORD = 'jm198733'
+
+EMIAL_ADMIN = 'johnmartin3387@gmail.com'

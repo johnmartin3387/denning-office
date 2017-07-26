@@ -25,7 +25,9 @@
     <input type="hidden" name="custom_data" value="" class="custom_data">
     <div class="row" style="margin: -50px 20px 10px 0px;">
         <a href="{% url 'matter_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+        {% if auth|dict:'update' == True or auth|dict:'create' == True %}
         <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        {% endif %}
     </div>
     <div class="col-md-7 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
@@ -80,8 +82,8 @@
                                 <div class="form-control-focus"> </div>
                             </div>
                             <label class="col-md-2 control-label" for="open_date" style="padding-left: 0px">Date File Opened</label>
-                            <div class="col-md-3 date form_datetime">
-                                <input type="text" class="form-control date-set" id="open_date" placeholder="" name="open_date" value="{{matter.open_date|date:'Y-m-d H:i'}}">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control date-set date-picker" id="open_date" placeholder="" name="open_date" value="{{matter.open_date|date:'Y-m-d H:i'}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -266,8 +268,8 @@
                                 <div class="form-control-focus"> </div>
                             </div>
                             <label class="col-md-2 control-label" for="close_date">Date File Closed</label>
-                            <div class="col-md-3 date form_datetime">
-                                <input type="text" class="form-control date-set" id="close_date" placeholder="Selete Date" name="close_date" value="{{project.lease_expiry_date|date:'Y-m-d H:i'}}">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control date-set date-picker" id="close_date" placeholder="Selete Date" name="close_date" value="{{project.lease_expiry_date|date:'Y-m-d H:i'}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -384,7 +386,7 @@ if (App.isAngularJsApp() === false) {
         });
     })
     initDateControl()
-    checkValidation("#defaultForm", {})
+    checkValidation("#defaultForm")
 
     if($("#matter_code").val() != ""){
         $.ajax({

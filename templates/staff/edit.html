@@ -15,6 +15,7 @@
 
 <link rel="stylesheet" href="{% static 'phone/css/intlTelInput.css' %}">
 <link rel="stylesheet" href="{% static 'phone/css/demo.css' %}">
+
 {% endblock %}
 
 {% block title %} Staff {% endblock %}
@@ -29,7 +30,10 @@
     <input type="hidden" id="phone_mobile_val" name="phone_mobile" value="">
     <div class="row" style="margin: -50px 20px 10px 0px;">
         <a href="{% url 'staff_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+
+        {% if auth|dict:'update' == True or auth|dict:'create' == True %}
         <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        {% endif %}
     </div>
     <div class="col-md-4 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
@@ -138,14 +142,14 @@
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
+                        
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="citizenship">Citizenship</label>
+                            <label class="col-md-4 control-label" for="citizenship">Citizenship </label>
                             <div class="col-md-8">
-                                <select class="form-control" id="citizenship" name="citizenship">
-                                    <option value="Option 1">Option 1</option>
-                                    <option value="Option 2">Option 2</option>
-                                    <option value="Option 3">Option 3</option>
-                                    <option value="Option 4">Option 4</option>
+                                <select class="form-control select2" id="citizenship" name="citizenship">
+                                    {% for item in countries %}
+                                    <option value="{{item.alpha_2}}" {% if contact.citizenship == item.alpha_2 %} selected {% endif %}>{{item.name}}</option>
+                                    {% endfor %}
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
@@ -382,8 +386,8 @@
 
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="prev_adjustment_date">Previous Adjustment Date</label>
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" class="form-control date-set" id="prev_adjustment_date" placeholder="Select Date" name="prev_adjustment_date" value="{{staff.prev_adjustment_date|date:'Y-m-d H:i'}}">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control date-set date-picker" id="prev_adjustment_date" placeholder="Select Date" name="prev_adjustment_date" value="{{staff.prev_adjustment_date|date:'Y-m-d'}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -395,16 +399,16 @@
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="date_ceased">Date Commenced</label>
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" class="form-control date-set" id="date_ceased" placeholder="Select Date" name="date_ceased" value="{{staff.date_ceased|date:'Y-m-d H:i'}}">
+                            <label class="col-md-4 control-label" for="date_commenced">Date Commenced</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control date-set date-picker" id="date_commenced" placeholder="Select Date" name="date_commenced" value="{{staff.date_commenced|date:'Y-m-d'}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
-                            <label class="col-md-4 control-label" for="date_commenced">Date Ceased</label>
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" class="form-control date-set" id="date_commenced" placeholder="Select Date" name="date_commenced" value="{{staff.date_commenced|date:'Y-m-d H:i'}}">
+                            <label class="col-md-4 control-label" for="date_ceased">Date Ceased</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control date-set date-picker" id="date_ceased" placeholder="Select Date" name="date_ceased" value="{{staff.date_ceased|date:'Y-m-d'}}">
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -440,7 +444,7 @@
                                 </select>
                                 <div class="form-control-focus"> </div>
                             </div>
-                        </div>
+                        </div>  
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="tax_file_no">Tax File No</label>
                             <div class="col-md-8">
@@ -452,7 +456,7 @@
                             <label class="col-md-4 control-label" for="ird_branch">IRD Branch</label>
                             <div class="col-md-8 input-group-control">
                                 <div class="input-group input-group-sm">
-                                    <select class="form-control" id="citizenship" name="citizenship" required>
+                                    <select class="form-control" id="citizenship" name="ird" required>
                                         <option value="Option 1"></option>
                                         <option value="Option 2"></option>
                                     </select>
@@ -500,10 +504,11 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="login_id">Login ID<span class="required" aria-required="true" > * </span></label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="login_id" placeholder="" name="login_id" value="{{staff.login_id|default_if_none:''}}" required>
+                                <input type="email" class="form-control" id="login_id" placeholder="" name="login_id" value="{{staff.login_id|default_if_none:''}}" required {% if contact.id %} disabled {% endif %}>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
+                        {% if contact.id == None %}
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="password">New Password<span class="required" aria-required="true" > * </span></label>
                             <div class="col-md-8">
@@ -515,6 +520,25 @@
                             <label class="col-md-4 control-label" for="confirm">Confirm Password<span class="required" aria-required="true" > * </span></label>
                             <div class="col-md-8">
                                 <input type="password" class="form-control" id="confirm" placeholder="" name="confirm" value="" required {% if contact.id %} disabled {% endif %}>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="confirm">Company</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" value="{{request.session.user.company}}" required disabled>
+                                <div class="form-control-focus"> </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-md-line-input has-success">
+                            <label class="col-md-4 control-label" for="group">Group<span class="required" aria-required="true" > * </span></label>
+                            <div class="col-md-8">
+                                <select class="form-control select2" name="group" required>
+                                    {% for group in groups %}
+                                        <option value="{{group.id}}" {% if group.id == staff.group_id %}selected{% endif %}> {{group.name}} </option>
+                                    {% endfor %}
+                                </select>
                                 <div class="form-control-focus"> </div>
                             </div>
                         </div>
@@ -581,7 +605,7 @@
 if (App.isAngularJsApp() === false) {
     initDateControl()
 
-    checkValidation("#defaultForm", {})
+    checkValidation("#defaultForm")
     initPhoneControl()
     $("#phone_home").intlTelInput("setNumber", '{{phones|dict:"phone_home"}}');
     $("#phone_office").intlTelInput("setNumber", '{{phones|dict:"phone_office"}}');

@@ -23,10 +23,14 @@
     <input type="hidden" name="id" id="property_id" value="{{property.id|default_if_none:''}}">
     <input type="hidden" name="custom_data" value="" class="custom_data">
     <div class="row" style="margin: -50px 20px 10px 0px;">
+        {% if request.session.user.group == 'Super Administrator' %}
         <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('property')">Edit Form</a> 
-
+        {% endif %}
         <a href="{% url 'property_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+
+        {% if auth|dict:'update' == True or auth|dict:'create' == True %}
         <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        {% endif %}
     </div>
     <div class="col-md-4 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
@@ -236,14 +240,14 @@
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="lease_expiry">Lease Expiry Date</label>
                             
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" id="lease_expiry" placeholder="Enter lease expiry date" name="lease_expiry_date" class="form-control date-set title-issued" value="{{propery.lease_expiry_date|date:'Y-m-d H:i'}}">
+                            <div class="col-md-8">
+                                <input type="text" id="lease_expiry" placeholder="Enter lease expiry date" name="lease_expiry_date" class="form-control date-set title-issued date-picker" value="{{propery.lease_expiry_date|date:'Y-m-d H:i'}}">
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
                             <label class="col-md-4 control-label" for="title_registeration_date">Title Registration Date</label>
-                            <div class="col-md-8 date form_datetime">
-                                <input type="text" id="title_registeration_date" placeholder="Enter lease expiry date" name="title_registeration_date" class="form-control date-set" value="{{propery.title_registeration_date|date:'Y-m-d H:i'}}">
+                            <div class="col-md-8">
+                                <input type="text" id="title_registeration_date" placeholder="Enter lease expiry date" name="title_registeration_date" class="form-control date-set date-picker" value="{{propery.title_registeration_date|date:'Y-m-d'}}">
                             </div>
                         </div>
                         <div class="form-group form-md-line-input has-success">
@@ -808,12 +812,6 @@
 
 if (App.isAngularJsApp() === false) {
 
-    /*$('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
-    // Workaround to fix datetimepicker position on window scroll
-    $( document ).scroll(function(){
-        $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal
-    });*/
-
     $(".select2, .select2-multiple").select2({
         placeholder: "",
         width: null
@@ -821,7 +819,7 @@ if (App.isAngularJsApp() === false) {
 
     changeType()
     Interest_enable()
-    checkValidation("#defaultForm", {})
+    checkValidation("#defaultForm")
 
     json_str = '{{template.json}}'
     json_str = json_str.replace(/&quot;/g, "\"")

@@ -27,11 +27,13 @@
                 <div class="table-toolbar">
                     <div class="row">
                         <div class="col-md-6">
+                            {% if auth|dict:'create' == True %}
                             <div class="btn-group">
                                 <a href="{% url 'contact_edit' %}" class="btn sbold green"> Add Contact
                                     <i class="fa fa-plus"></i>
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                         
                     </div>
@@ -54,7 +56,14 @@
                             <td> {{ contact.name }} </td>
                             <td> {{ contact.id_type }} </td>
                             <td class="center"> {{ contact.info.address1 }} </td>
-                            <td> <a href="{% url 'contact_edit' %}?id={{contact.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{contact.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+                            <td> 
+                                {% if auth|dict:'update' == True %}
+                                <a href="{% url 'contact_edit' %}?id={{contact.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                {% endif %}
+                                {% if auth|dict:'remove' == True %}
+                                <button type="button" class="btn red-mint" onclick="remove('{{contact.id}}')"><i class="glyphicon glyphicon-trash "></i></button> 
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

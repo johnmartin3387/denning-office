@@ -27,11 +27,13 @@
                 <div class="table-toolbar">
                     <div class="row">
                         <div class="col-md-6">
+                            {% if auth|dict:'create' == True %}
                             <div class="btn-group">
                                 <a href="{% url 'property_edit' %}" class="btn sbold green"> Add Property
                                     <i class="fa fa-plus"></i>
                                 </a>
                             </div>
+                            {% endif %}
                         </div>
                         
                     </div>
@@ -57,19 +59,25 @@
                     <tbody>
                         {% for property in properties %}
                         <tr class="odd gradeX">
-                            <td> {{ property.lot_no }} </td>
-                            <td> {{ property.title_type.value }} </td>
-                            <td> {{ property.title_no }} </td>
-                            <td> {{ property.lot_type.value }} </td>
-                            <td> {{ property.lot_no }} </td>
-                            <td> {{ property.mukim }} </td>
+                            <td> {{ property.lot_no|default_if_none:'' }} </td>
+                            <td> {{ property.title_type.value|default_if_none:'' }} </td>
+                            <td> {{ property.title_no|default_if_none:'' }} </td>
+                            <td> {{ property.lot_type.value|default_if_none:'' }} </td>
+                            <td> {{ property.lot_no|default_if_none:'' }} </td>
+                            <td> {{ property.mukim|default_if_none:'' }} </td>
                             <!--<td> {{ property.daerah }} </td>
                             <td> {{ property.project.name }} </td>
                             <td> {{ property.previous_title }} </td>-->
                             <td align="center"> {% if property.buml_lot == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
                             <td align="center"> {% if property.malay == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
-                            <td> <a href="{% url 'property_edit' %}?id={{property.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-                            <button type="button" class="btn red-mint" onclick="remove('{{property.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+                            <td> 
+                                {% if auth|dict:'update' == True %}
+                                <a href="{% url 'property_edit' %}?id={{property.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                {% endif %}
+                                {% if auth|dict:'remove' == True %}
+                                <button type="button" class="btn red-mint" onclick="remove('{{property.id}}')"><i class="glyphicon glyphicon-trash "></i></button> 
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

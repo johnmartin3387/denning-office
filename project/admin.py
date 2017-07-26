@@ -71,3 +71,9 @@ class GroupAdmin(admin.ModelAdmin):
 
 admin.site.register(Group, GroupAdmin)
 
+class CompanyAdmin(admin.ModelAdmin):
+    model = Company
+    list_display = ['id']
+    list_display_links = ['id']
+
+admin.site.register(Company, CompanyAdmin)

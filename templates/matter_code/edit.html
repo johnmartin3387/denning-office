@@ -23,9 +23,14 @@
     <input type="hidden" name="matter_code_id" id="matter_code_id" value="{{matter_code.id}}">
     <input type="hidden" name="additional_info" id="additional_info" value="{{matter_code.additional_info}}">
     <div class="row" style="margin: -50px 20px 10px 0px;">
-        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('matter')">Edit Form</a> 
+        {% if request.session.user.group == 'Super Administrator' %}
+        <a href="javascript:;" class="btn btn-primary edit-btn" style="float: right; margin: 0px 10px;" onclick="FormBuilder_tp.saveFrame('matter')">Edit Form</a>
+        {% endif %} 
         <a href="{% url 'mattercode_list' %}" class="btn btn-primary" style="float: right; margin: 0px 10px;">Cancel</a>
+
+        {% if auth|dict:'update' == True or auth|dict:'create' == True %}
         <button type="submit" class="btn btn-primary" style="float: right; margin: 0px 10px;">Save</button>
+        {% endif %}
     </div>
     <div class="col-md-6 ">
         <!-- BEGIN SAMPLE FORM PORTLET-->
@@ -253,7 +258,7 @@ if (App.isAngularJsApp() === false) {
         width: null
     });
 
-    checkValidation("#defaultForm", {})
+    checkValidation("#defaultForm")
 }
 
 function changerelated(obj){

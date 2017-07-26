@@ -66,6 +66,17 @@ class Phone(models.Model):
     def __unicode__(self):
         return "%s" % self.phone
 
+class Phone_Company(models.Model):
+    phone = models.CharField(max_length=255, blank=True, null=True)
+    type = models.CharField(max_length=255, blank=True, null=True)
+    company = models.ForeignKey('Company', blank=True, null=True)
+
+    class Meta:
+        db_table = 'Phone_Company'
+
+    def __unicode__(self):
+        return "%s" % self.phone
+
 '''class Privilege(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     parent = models.ForeignKey('self', blank=True, null=True)
@@ -78,6 +89,7 @@ class Phone(models.Model):
 
 class Group(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
+    company = models.ForeignKey('Company', blank=True, null=True)
     # parent = models.ForeignKey('self', blank=True, null=True)
     privilege_json = models.TextField(null=True, blank=True)
 
@@ -94,6 +106,40 @@ class Group(models.Model):
     class Meta:
         db_table = 'Grant'''
 
+class Company(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    initials = models.CharField(max_length=255, blank=True, null=True)
+    description1 = models.ForeignKey('Attribute', blank=True, null=True, related_name="description1")
+    description2 = models.ForeignKey('Attribute', blank=True, null=True, related_name="description2")
+    info = models.ForeignKey('Contact_Info', blank=True, null=True)
+    phone1 = models.CharField(max_length=255, blank=True, null=True)
+    phone2 = models.CharField(max_length=255, blank=True, null=True)
+    phone3 = models.CharField(max_length=255, blank=True, null=True)
+    fax = models.CharField(max_length=255, blank=True, null=True)
+    fax2 = models.CharField(max_length=255, blank=True, null=True)
+    commencement_date = models.DateField(blank=True, null=True)
+
+    gst_registered = models.BooleanField(default=True)
+    gst_rate = models.FloatField(blank=True, default=0, null=True)
+    registration_no = models.CharField(max_length=255, blank=True, null=True)
+    register_date = models.DateField(blank=True, null=True)
+    effective_date = models.DateField(blank=True, null=True)
+    taxable_period = models.IntegerField(blank=True, default=3, null=True) # month 
+
+    partner_label = models.CharField(max_length=255, blank=True, null=True)
+    partner = models.TextField(null=True, blank=True, default="")
+    partner_qualification = models.TextField(null=True, blank=True, default="")
+    la_label = models.CharField(max_length=255, blank=True, null=True)
+    la_clerk = models.TextField(null=True, blank=True, default="")
+
+    tax_invoice = models.TextField(null=True, blank=True, default="")
+    quotation = models.TextField(null=True, blank=True, default="")
+    receipt = models.TextField(null=True, blank=True, default="")
+    message = models.TextField(null=True, blank=True, default="")
+
+    class Meta:
+        db_table = 'Company'
+
 class Staff(models.Model):
     contact = models.ForeignKey('Contact', blank=True, null=True)
     login_id = models.CharField(max_length=255, blank=True, null=True)
@@ -106,17 +152,21 @@ class Staff(models.Model):
     department = models.ForeignKey('Attribute', blank=True, null=True, related_name="department_staff")
     position_type = models.ForeignKey('Attribute', blank=True, null=True, related_name="position_type")
     monthly_salary = models.IntegerField(blank=True, default=0, null=True)
-    prev_adjustment_date = models.DateTimeField(blank=True, null=True)
+    prev_adjustment_date = models.DateField(blank=True, null=True)
     annual_leave = models.IntegerField(blank=True, default=0, null=True)
-    date_commenced = models.DateTimeField(blank=True, null=True, default=None)
-    date_ceased = models.DateTimeField(blank=True, null=True, default=None)
+    date_commenced = models.DateField(blank=True, null=True, default=None)
+    date_ceased = models.DateField(blank=True, null=True, default=None)
     tenure_employed = models.ForeignKey('Attribute', blank=True, null=True, related_name="tenure")
     status = models.CharField(max_length=255, blank=True, null=True)
     tax_file_no = models.IntegerField(blank=True, default=0, null=True)
     socso_no = models.IntegerField(blank=True, default=0, null=True)
     epf_no = models.IntegerField(blank=True, default=0, null=True)
     remarks = models.TextField(null=True, blank=True)
-    privilege = models.ForeignKey('Group', blank=True, null=True)
+    company = models.ForeignKey('Company', blank=True, null=True)
+    group = models.ForeignKey('Group', blank=True, null=True)
+
+    email_verification = models.CharField(max_length=255, blank=True, null=True)
+    change_password = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         db_table = 'Staff'
@@ -170,13 +220,13 @@ class Matter(models.Model):
     checklist = models.ForeignKey('Checklist', blank=True, null=True)
     file_number = models.CharField(max_length=255, blank=True, null=True)
     file_number2 = models.CharField(max_length=255, blank=True, null=True)
-    open_date = models.DateTimeField(blank=True, null=True)
+    open_date = models.DateField(blank=True, null=True)
     status = models.ForeignKey('Attribute', blank=True, null=True)
     related = models.ForeignKey('self', blank=True, null=True)
     pocket_location = models.CharField(max_length=255, blank=True, null=True)
     physical_location = models.CharField(max_length=255, blank=True, null=True)
     box_location = models.CharField(max_length=255, blank=True, null=True)
-    close_date = models.DateTimeField(blank=True, null=True)
+    close_date = models.DateField(blank=True, null=True)
     turnaround = models.IntegerField(blank=True, default=0, null=True)
     billing_code = models.CharField(max_length=255, blank=True, null=True)
     remarks = models.TextField(blank=True, null=True)
@@ -212,7 +262,7 @@ class Task(models.Model):
     description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=255, blank=True, null=True)
-    start_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
     after = models.CharField(max_length=255, blank=True, null=True)
     est_time = models.DateTimeField(blank=True, null=True)
     due_time = models.DateTimeField(blank=True, null=True)

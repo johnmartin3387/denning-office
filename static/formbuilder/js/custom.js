@@ -25,6 +25,7 @@ var FormBuilder_tp = function() {
             $(".edit-tool").attr("style", "display:none;")
 
             if(form_type != ""){
+                console.log(jsonDataForDB)
                 commitData(jsonDataForDB)
             }
         }
@@ -273,8 +274,8 @@ var FormBuilder_tp = function() {
             value = ""
         var html = '<div class="form-group form-md-line-input has-success"> \
                         <label class="col-md-4 control-label">'+ element["label"] +'</label> \
-                        <div class="col-md-8 date form_datetime">\
-                            <input type="text" placeholder="'+ placeholder +'" name="'+ element['name'] +'" class="form-control date-set" value="'+ value +'"> \
+                        <div class="col-md-8">\
+                            <input type="text" placeholder="'+ placeholder +'" name="'+ element['name'] +'" class="form-control date-set date-picker" value="'+ value +'"> \
                         </div> \
                     </div>'
 
@@ -506,6 +507,7 @@ var FormBuilder_tp = function() {
         if(flag == 1){
             jsonDataForDB.splice(i, 1, [key, data, header]);
         } else {
+            console.log(jsonDataForDB)
             jsonDataForDB.push([key, data, header]);
         }
     }
@@ -645,7 +647,7 @@ var commitNewAttr = function(){
                         placeholder: "",
                         width: null
                     });
-                    checkValidation("#defaultForm", {})
+                    checkValidation("#defaultForm")
                 }
             });
         }
@@ -653,6 +655,19 @@ var commitNewAttr = function(){
 }
 
 var checkValidation = function(indicator, rule){
+    if(rule == undefined){
+        rule = {
+                password: {
+                    minlength: 5,
+                    required: true
+                },
+                confirm: {
+                    minlength: 5,
+                    required: true,
+                    equalTo: "#password"
+                }
+            }
+    }
     $(indicator).validate({
         rules: rule,
         highlight: function (element) { // hightlight error inputs
@@ -714,6 +729,45 @@ var checkValidation = function(indicator, rule){
                 if(valid == 0)
                     return
             }
+
+            if($("#phone_personal").val() != undefined){
+                valid = 1
+                if($("#phone_personal").val() != "" && $("#phone_personal").intlTelInput("isValidNumber") == false){
+                    $("#phone_personal").parent().parent().parent().addClass("has-error");
+                    $("#phone_personal_val").val("")
+                    valid = 0
+                } else {
+                    $("#phone_personal").parent().parent().parent().removeClass("has-error");
+                    $("#phone_personal_val").val($("#phone_personal").intlTelInput("getNumber"))
+                }
+                
+                if(valid == 0)
+                    return
+            }
+
+            if($("#fax").val() != undefined){
+                valid = 1
+                if($("#fax").val() != "" && $("#fax").intlTelInput("isValidNumber") == false){
+                    $("#fax").parent().parent().parent().addClass("has-error");
+                    $("#fax_val").val("")
+                    valid = 0
+                } else {
+                    $("#fax").parent().parent().parent().removeClass("has-error");
+                    $("#fax_val").val($("#fax").intlTelInput("getNumber"))
+                }
+                if($("#fax2").val() != undefined && $("#fax2").val() != "" && $("#fax2").intlTelInput("isValidNumber") == false){
+                    $("#fax2").parent().parent().parent().addClass("has-error");
+                    $("#fax2_val").val("")
+                    valid = 0
+                } else {
+                    $("#fax2").parent().parent().parent().removeClass("has-error");
+                    $("#fax2_val").val($("#fax2").intlTelInput("getNumber"))
+                }
+                if(valid == 0)
+                    return
+            }
+
+            
 
             form[0].submit(); // submit the form
         }
@@ -777,14 +831,25 @@ var datatables = function(indicator){
 }
 
 var initDateControl = function(){
-    $(".form_datetime").datetimepicker({
+    /*$(".form_datetime").datetimepicker({
         autoclose: true,
         isRTL: App.isRTL(),
         format: "yyyy-mm-dd hh:ii",
         pickerPosition: (App.isRTL() ? "bottom-right" : "bottom-left")
-    });
+    });*/
 
-    $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+    if (jQuery().datepicker) {
+        $('.date-picker').datepicker({
+            // rtl: App.isRTL(),
+            changeMonth: true,
+            changeYear: true,
+            autoclose: true,
+            dateFormat: "yy-mm-dd"
+        });
+        //$('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
+    }
+
+    // $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
     // Workaround to fix datetimepicker position on window scroll
     $( document ).scroll(function(){
         $('.form_datetime').datetimepicker('place'); //#modal is the id of the modal

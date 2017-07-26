@@ -152,3 +152,32 @@ class MatterResource(ModelResource):
         filtering = {
             'id': ALL
         }
+
+
+class CompanyResource(ModelResource):
+    class Meta:
+        queryset = Company.objects.all()
+        resource_name = 'company'
+        allowed_methods = ['get', 'put', 'post', 'delete']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL
+        }
+
+
+class GroupResource(ModelResource):
+
+    company = fields.ForeignKey(CompanyResource, 'company', blank = True, null=True)
+    class Meta:
+        queryset = Group.objects.all()
+        resource_name = 'group'
+        allowed_methods = ['get', 'put', 'post', 'delete']
+        authentication = DjangoCookieBasicAuthentication()
+        authorization = CustomAuthorization()
+
+        filtering = {
+            'id': ALL,
+            'company': ALL
+        }

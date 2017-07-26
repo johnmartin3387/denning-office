@@ -17,7 +17,14 @@
             <td> {{ staff.contact.id_value }} </td>
             <td> {{ staff.position_type.value|default_if_none:'' }} </td>
             <td class="center"> {{ staff.status|default_if_none:'' }} </td>
-            <td> <a href="{% url 'staff_edit' %}?id={{staff.contact.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{staff.contact.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+            <td> 
+                {% if auth|dict:'update' == True %}
+                <a href="{% url 'staff_edit' %}?id={{staff.contact.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                {% endif %}
+                {% if auth|dict:'remove' == True %}
+                <button type="button" class="btn red-mint" onclick="remove('{{staff.contact.id}}')"><i class="glyphicon glyphicon-trash "></i></button> 
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>

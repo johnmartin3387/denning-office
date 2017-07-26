@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.min.css" />
 <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.mobile.min.css" />
 
+<link href="{% static 'global/plugins/bootstrap-toastr/toastr.min.css' %}" rel="stylesheet" type="text/css" />
+
 {% endblock %}
 
 {% block content %}
@@ -23,14 +25,17 @@
                 <div class="caption">
                     <span class="caption-subject bold font-dark">Groups</span>
                 </div>
+                <div class="actions">
+                    <a data-toggle="modal" href="#basic" class="btn btn-circle btn-xs purple" title=""><i class="fa fa-plus"></i> Add New Group</a>
+                </div>
             </div>
             <div class="portlet-body">
                 <!--BEGIN TABS-->
                 <div data-always-visible="1" data-rail-visible="0">
-                    <ul class="feeds">
+                    <ul class="feeds groups">
                         {% for group in groups %}
                         <li>
-                            <a href="javascript:;" onclick="selGroup(this)" class="group">
+                            <a href="javascript:;" onclick="selGroup(this, '{{group.id}}')" class="group">
                                 <div class="col1">
                                     <div class="cont">
                                         <div class="cont-col2">
@@ -38,10 +43,14 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% if group.name != 'Super Administrator' and group.name != 'Administrator' %}
+                                <div class="col2">
+                                    <div class="date"> <a href="javascript:;" class="btn btn-xs red" title="" onclick="removeGroup('{{group.id}}')"><i class="fa fa-trash"></i> </a> </div>
+                                </div>
+                                {% endif %}
                             </a>
                         </li>
                         {% endfor %}
-                    </ul>
                 </div>
             </div>
         </div>
@@ -52,8 +61,11 @@
                 <div class="caption">
                     <span class="caption-subject bold font-dark">Privileges</span>
                 </div>
+                <div class="actions">
+                    <a href="javascript:;" class="btn btn-xs purple" title="" onclick="onCheck()"> Save </a>
+                </div>
             </div>
-            <div class="portlet-body">
+            <div class="portlet-body" style="min-height: 300px;">
                 <div class="demo-section k-content">
                     <div>
                         <div id="treeview"></div>
@@ -62,6 +74,34 @@
             </div>
         </div>
     </div>
+</div>
+<input type="hidden" name="current" class="current"/>
+
+<div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body form form-horizontal">
+                <div class="form-body">
+                    <div class="form-group form-md-line-input has-success">
+                        <label class="col-md-4 control-label" for="type">New Group</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="group-name" placeholder="" name="group_name" onblur="capital(this)">
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" onclick="addGroup()" data-dismiss="modal"class="btn green" >Create</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 {% endblock %}
 
@@ -72,64 +112,142 @@
 <script src="{% static 'global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js' %}" type="text/javascript"></script>
 <script src="{% static 'formbuilder/js/custom.js' %}" type="text/javascript"></script>
 
+<script src="{% static 'global/plugins/bootstrap-toastr/toastr.min.js' %}" type="text/javascript"></script>
 <script src="https://kendo.cdn.telerik.com/2017.2.621/js/kendo.all.min.js"></script>
 
 <script type="text/javascript">
 
-var data = []
+var tree_data = [{
+        id: "matter", text: "Matter", expanded: true, items: [
+            { id: "matter_view", text: "View", checked: false },
+            { id: "matter_create", text: "Create", checked: false },
+            { id: "matter_update", text: "Update", checked: false },
+            { id: "matter_remove", text: "Remove", checked: false },
+        ]},
+        {id: "mattercode", text: "Matter Code", expanded: true, items: [
+            { id: "mattercode_view", text: "View", checked: false },
+            { id: "mattercode_create", text: "Create", checked: false },
+            { id: "mattercode_update", text: "Update", checked: false },
+            { id: "mattercode_remove", text: "Remove", checked: false },
+        ]},
+        {id: "contact", text: "Contact", expanded: true, items: [
+            { id: "contact_view", text: "View", checked: false },
+            { id: "contact_create", text: "Create", checked: false },
+            { id: "contact_update", text: "Update", checked: false },
+            { id: "contact_remove", text: "Remove", checked: false },
+        ]},
+        {id: "property", text: "Property", expanded: true, items: [
+            { id: "property_view", text: "View", checked: false },
+            { id: "property_create", text: "Create", checked: false },
+            { id: "property_update", text: "Update", checked: false },
+            { id: "property_remove", text: "Remove", checked: false },
+        ]},
+        {id: "staff", text: "Staff", expanded: true, items: [
+            { id: "staff_view", text: "View", checked: false },
+            { id: "staff_create", text: "Create", checked: false },
+            { id: "staff_update", text: "Update", checked: false },
+            { id: "staff_remove", text: "Remove", checked: false },
+        ]},
+    ]
 
 if (App.isAngularJsApp() === false) {
     jQuery(document).ready(function() {
-
+        buildTree({})
     });
 }
 
-function selGroup(obj){
+function selGroup(obj, id){
     $('.group').each(function(index,item){
         $(item).attr("style", "")
     });
     $(obj).attr("style", "color: red")
 
     {% for group in groups %}
+        if(id == '{{group.id}}'){
+            $.ajax({
+                type: 'GET',
+                url: '/api/group/'+id+'/?format=json',
+                success: function(data) {
+                    treedata = JSON.parse(JSON.stringify(tree_data))
+                    privileges = data.privilege_json.split(",")
+                    for(var idx=0; idx<privileges.length; idx++){
+                        treedata = setCheck(treedata, privileges[idx])
+                    }
 
+                    console.log(JSON.stringify(treedata))
+                    $(".current").val(id)
+                    $("#treeview").data("kendoTreeView").dataSource.data(treedata);
+                }
+            })
+        }
     {% endfor %}
 }
 
-$("#treeview").kendoTreeView({
-    checkboxes: {
-        checkChildren: true
-    },
+function addGroup(){
+    $.ajax({
+        type: 'POST',
+        url: '/api/group/',
+        data: JSON.stringify({name: $("#group-name").val(), privilege_json: "{}", company: '/api/company/'+'{{request.session.user.company_id}}' + '/'}),
+        dataType: 'json',
+        contentType: 'application/json; charset=UTF-8',
+        success: function(data) {
+        },
+        error: function() {
+            location.reload();
+        }
+    });
+}
 
-    check: onCheck,
+function removeGroup(id){
+    $.ajax({
+        type: 'DELETE',
+        url: '/api/group/' + id + '/?format=json',
+        success: function(data) {
+            loadData()
+        }
+    });
+}
 
-    dataSource: [{
-        id: "matter", text: "Matter", expanded: false, items: [
-            { id: "matter_create", text: "Create", value: "" },
-            { id: "matter_update", text: "Update" },
-            { id: "matter_remove", text: "Remove" },
-        ]},
-        {id: "mattercode", text: "Matter Code", expanded: false, items: [
-            { id: "mattercode_create", text: "Create" },
-            { id: "mattercode_update", text: "Update" },
-            { id: "mattercode_remove", text: "Remove" },
-        ]},
-        {id: "contact", text: "Contact", expanded: false, items: [
-            { id: "contact_create", text: "Create" },
-            { id: "contact_update", text: "Update" },
-            { id: "contact_remove", text: "Remove" },
-        ]},
-        {id: "property", text: "Property", expanded: false, items: [
-            { id: "contact_create", text: "Create" },
-            { id: "contact_update", text: "Update" },
-            { id: "contact_remove", text: "Remove" },
-        ]},
-        {id: "staff", text: "Staff", expanded: false, items: [
-            { id: "staff_create", text: "Create" },
-            { id: "staff_update", text: "Update" },
-            { id: "staff_remove", text: "Remove" },
-        ]},
-    ]
-});
+function loadData(){
+    $.ajax({
+        type: 'GET',
+        url: '/api/group/?format=json&company=' + '{{request.session.user.company_id}}',
+        success: function(data) {
+            var res = ""
+            for(var i=0; i<data["objects"].length; i++){
+                var temp = '<li> \
+                        <a href="javascript:;" onclick="selGroup(this, '+data["objects"][i]["id"]+')" class="group"> \
+                            <div class="col1"> \
+                                <div class="cont"> \
+                                    <div class="cont-col2"> \
+                                        <div class="desc"> '+data["objects"][i]["name"]+' </div> \
+                                    </div> \
+                                </div> \
+                            </div> '
+                if(data["objects"][i]["name"] != "Super Administrator" && data["objects"][i]["name"] != "Administrator"){
+                    temp = temp + ' <div class="col2"> \
+                                <div class="date"> <a href="javascript:;" class="btn btn-xs red" title="" onclick="removeGroup('+data["objects"][i]["id"]+')"><i class="fa fa-trash"></i> </a> </div> \
+                            </div>'
+                }
+                temp = temp + '</a> </li>'
+                res = res + temp
+            }
+            $(".groups").html(res)
+        }
+    });
+}
+
+function buildTree(data){
+    $("#treeview").kendoTreeView({
+        checkboxes: {
+            checkChildren: true
+        },
+
+        // check: onCheck,
+
+        dataSource: data
+    });
+}
 
 // function that gathers IDs of checked nodes
 function checkedNodeIds(nodes, checkedNodes) {
@@ -152,16 +270,60 @@ function onCheck() {
 
     checkedNodeIds(treeView.dataSource.view(), checkedNodes);
 
-    for(var i=0; i<checkedNodes.length; i++){
-
-    }
     if (checkedNodes.length > 0) {
         message = checkedNodes.join(",");
     } else {
         message = "";
+    }  
+
+    var group = $(".current").val()
+    if(group == "")
+        return
+
+    $.ajax({
+        type: 'PUT',
+        url: '/api/group/' + group + '/?format=json',
+        data: JSON.stringify({privilege_json: message}),
+        dataType: 'json',
+        contentType: 'application/json; charset=UTF-8',
+        success: function(data) {
+            toastr.options = {
+                          "closeButton": true,
+                          "debug": false,
+                          "positionClass": "toast-top-right",
+                          "onclick": null,
+                          "showDuration": "1000",
+                          "hideDuration": "1000",
+                          "timeOut": "5000",
+                          "extendedTimeOut": "1000",
+                          "showEasing": "swing",
+                          "hideEasing": "linear",
+                          "showMethod": "fadeIn",
+                          "hideMethod": "fadeOut"
+                      }
+            toastr.success("Privileges are updated for the selected group.", "Saving privileges.")
+        },
+        error: function() {
+
+        }
+    });
+}
+
+function setCheck(data, id){
+    for(var idx=0; idx<data.length; idx++){
+        var flag = 0
+        for(var sub=0; sub<data[idx]["items"].length; sub++){
+            item = data[idx]["items"][sub]
+            if(item["id"] == id){
+                item["checked"] = true
+                flag = 1
+            }
+        }
+        if(flag == 1)
+            data[idx]["checked"] = true
     }
 
-    
+    return data
 }
 
 </script>

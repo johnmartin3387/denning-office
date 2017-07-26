@@ -9,6 +9,8 @@ urlpatterns = [
     url(r'^', include(AttributeResource().urls)),
     url(r'^', include(MatterCodeResource().urls)),
     url(r'^', include(ContactResource().urls)),
+    url(r'^', include(GroupResource().urls)),
+    url(r'^', include(CompanyResource().urls)),
 
     url(r'update_property_template', views.property_template, name="property_template")
 ]

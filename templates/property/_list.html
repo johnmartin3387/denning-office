@@ -29,7 +29,14 @@
             <td> {{ property.previous_title }} </td>
             <td> {% if property.buml_lot == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
             <td> {% if property.malay == True %}<i class="fa fa-check purple"></i> {% else %} <i class="fa fa-close"></i> {% endif %} </td>
-            <td> <a href="{% url 'property_edit' %}?id={{property.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{property.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+            <td> 
+                {% if auth|dict:'update' == True %}
+                <a href="{% url 'property_edit' %}?id={{property.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                {% endif %}
+                {% if auth|dict:'remove' == True %}
+                <button type="button" class="btn red-mint" onclick="remove('{{property.id}}')"><i class="glyphicon glyphicon-trash "></i></button> 
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>

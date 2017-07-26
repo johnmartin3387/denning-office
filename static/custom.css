@@ -94,3 +94,11 @@ label.error{
 .country-list{
     z-index: 10 !important;
 }
+
+.ui-datepicker{
+    z-index: 10 !important;
+}
+
+.icon-button{
+    display: none !important;
+}

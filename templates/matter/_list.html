@@ -24,7 +24,14 @@
             <td> {{ matter.clerk_in_charge.contact.name }} </td>
             <td> {{ matter.status.value }} </td>
 
-            <td> <a href="{% url 'matter_edit' %}?id={{matter.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a><button type="button" class="btn red-mint" onclick="remove('{{matter.id}}')"><i class="glyphicon glyphicon-trash "></i></button> </td>
+            <td>
+                {% if auth|dict:'update' == True %}  
+                <a href="{% url 'matter_edit' %}?id={{matter.id}}" type="button" class="btn blue"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                {% endif %}
+                {% if auth|dict:'remove' == True %}
+                <button type="button" class="btn red-mint" onclick="remove('{{matter.id}}')"><i class="glyphicon glyphicon-trash "></i></button> 
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
