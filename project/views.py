@@ -807,7 +807,7 @@ def company_update(request):
 
             # send email for meter status
             send_email(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, settings.DEFAULT_FROM_EMAIL, \
-                          "johnmartin3387@gmail.com", "Email verification", body)
+                          request.POST['login_id'], "Email verification", body)
 
             return redirect("/verification")
             

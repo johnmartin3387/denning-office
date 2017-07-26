@@ -210,11 +210,11 @@ CURRENCY = {
 
 PRIVILEGE_SETTING = ["matter", "mattercode", "contact", "property", "staff"]
 
-DEFAULT_FROM_EMAIL = 'johnmartin3387@gmail.com'
+DEFAULT_FROM_EMAIL = 'sammartin7787@gmail.com'
 
 EMAIL_HOST = 'smtp.googlemail.com'
 EMAIL_PORT = '465'
-EMAIL_HOST_USER = 'johnmartin3387@gmail.com'
-EMAIL_HOST_PASSWORD = 'jm198733'
+EMAIL_HOST_USER = 'sammartin7787@gmail.com'
+EMAIL_HOST_PASSWORD = 'ssssssssss'
 
-EMIAL_ADMIN = 'johnmartin3387@gmail.com'
+EMIAL_ADMIN = 'sammartin7787@gmail.com'
