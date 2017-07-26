@@ -802,8 +802,8 @@ def company_update(request):
                 "email_verification": False
             }
 
-            body = "Please verify your email: http://%s:%s/verification?code=%s" % \
-                        (request.META["SERVER_NAME"], request.META["SERVER_PORT"], staff.email_verification)
+            url = "http://%s:%s/verification?code=%s" % (settings.SERVER_IP, request.META["SERVER_PORT"], staff.email_verification)
+            body = "Please verify your email: <a href='%s'>%s</a>" % (url, url)
 
             # send email for meter status
             send_email(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, settings.DEFAULT_FROM_EMAIL, \
@@ -945,10 +945,11 @@ def forgot_password(request):
     if len(staff) > 0:
         staff[0].change_password = getRandomDigits(15)
         staff[0].save()
-        body = "Please change password: http://%s:%s/change_password/%d/?token=%s" % \
-                        (request.META["SERVER_NAME"], request.META["SERVER_PORT"], staff[0].id, staff[0].change_password)
+
+        url = "http://%s:%s/change_password/%d/?token=%s" % (request.META["SERVER_NAME"], request.META["SERVER_PORT"], staff[0].id, staff[0].change_password)
+        body = "Please change password: <a href='%s'>%s</a>" % (url, url)
         send_email(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD, settings.DEFAULT_FROM_EMAIL, \
-                  request.GET["email"], "Email verification", body)
+                  request.GET["email"], "Change password", body)
     else:
         return HttpResponse("False")
 

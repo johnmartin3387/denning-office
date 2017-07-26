@@ -218,3 +218,5 @@ EMAIL_HOST_USER = 'sammartin7787@gmail.com'
 EMAIL_HOST_PASSWORD = 'ssssssssss'
 
 EMIAL_ADMIN = 'sammartin7787@gmail.com'
+
+SERVER_IP = "52.38.225.233"
