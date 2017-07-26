@@ -792,7 +792,7 @@ def company_update(request):
                 request.POST["id"] == "":
 
             request.session['user'] = {
-                "id": login_staff[0].id,
+                "id": staff.id,
                 # "id": user[0].id,
                 "username": staff.login_id, #user[0].email,
                 "group": staff.group.name,
